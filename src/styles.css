@@ -1,5 +1,4 @@
-/* Incolla questo file IN FONDO a src/styles.css.
-   Ripristina la palette chiara e modifica esclusivamente i grafici. */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap");
 
 :root {
   --bg: #f4f0e7 !important;
@@ -19,65 +18,18 @@
 html, body, #root, #app, main {
   background: var(--bg) !important;
   color: var(--text) !important;
-}
-
-body {
-  margin: 0 !important;
   font-family: "DM Sans", Arial, sans-serif !important;
   font-weight: 400 !important;
 }
 
-/* Ripristino del layout chiaro precedente */
-header, nav, aside, footer, section, article, .panel, .card, .widget,
-.toolbar, .controls, .modal, .dialog, .drawer, .movement-panel,
-.budget-panel, .cash-flow-panel, .master-budget-panel,
-#cashflow-controls, #cashflow-controls > div:first-child,
-#cf-summary span, table, thead, tbody, tr, th, td,
-.table, .data-table, .table-wrapper, .table-container {
-  background-image: none !important;
+/* Elimina la vecchia fascia bianca poco leggibile */
+body :where(*):is([class*="family"], [id*="family"], [class*="holding"], [id*="holding"]) {
   color: var(--text) !important;
+  background-color: transparent !important;
+  text-shadow: none !important;
 }
 
-header, nav, aside, footer, section, article, .panel, .card, .widget,
-.toolbar, .controls, .movement-panel, .budget-panel, .cash-flow-panel,
-.master-budget-panel {
-  background-color: var(--bg) !important;
-}
-
-#cashflow-controls,
-#cashflow-controls > div:first-child,
-#cf-summary span,
-table,
-tbody,
-tbody tr,
-tbody td {
-  background-color: var(--surface) !important;
-}
-
-thead, thead tr, thead th { background-color: var(--surface-2) !important; }
-
-button {
-  background: #eee9df !important;
-  color: #77746d !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-}
-
-#cf-import,
-button.primary,
-button[class*="primary"] {
-  background: var(--sage) !important;
-  color: #fff !important;
-}
-
-#cashflow-controls::before {
-  content: "Jo & Eli Control Room" !important;
-  color: var(--text) !important;
-  font-family: "Playfair Display", Georgia, serif !important;
-  font-weight: 400 !important;
-}
-
-/* Nasconde esclusivamente l'etichetta di versione */
+/* Rimuove tutte le etichette di versione */
 body :where(*):is(
   [class*="version"],
   [id*="version"],
@@ -89,8 +41,61 @@ body :where(*):is(
   display: none !important;
 }
 
-/* Grafici: unica parte modificata rispetto al rollback */
-#cf-chart,
+/* Card finanziarie individuate dai contenuti */
+body :where(*):has-text("Banca (Post-Auto)"),
+body :where(*):has-text("Banca della Marca"),
+body :where(*):has-text("Pool Cassa Agosto"),
+body :where(*):has-text("DSCR Ratio"),
+body :where(*):has-text("Saldo Fine Agosto"),
+body :where(*):has-text("Totale Accantonato"),
+body :where(*):has-text("Prezzo V80A") {
+  color: var(--text) !important;
+  background-color: var(--surface) !important;
+  background-image: none !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 10px 30px rgba(126, 107, 75, .055) !important;
+}
+
+/* Fallback robusto: contenitori comuni delle metriche */
+.metric,
+.metrics,
+.metric-card,
+.kpi,
+.kpi-card,
+.summary-card,
+.stat,
+.stat-card,
+.balance-card,
+.account-card,
+.summary,
+.financial-card,
+.dashboard-card,
+.card,
+.panel,
+.widget,
+.tile {
+  color: var(--text) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 10px 30px rgba(126, 107, 75, .055) !important;
+}
+
+.metric *, .metrics *, .metric-card *, .kpi *, .kpi-card *,
+.summary-card *, .stat *, .stat-card *, .balance-card *,
+.account-card *, .summary *, .financial-card *, .dashboard-card *,
+.card *, .panel *, .widget *, .tile * {
+  color: var(--text) !important;
+  background-color: transparent !important;
+}
+
+/* Evidenziazioni leggere per categorie */
+.metric:nth-child(1), .kpi:nth-child(1), .summary-card:nth-child(1), .stat-card:nth-child(1) { background: var(--sage-soft) !important; }
+.metric:nth-child(2), .kpi:nth-child(2), .summary-card:nth-child(2), .stat-card:nth-child(2) { background: var(--coral-soft) !important; }
+.metric:nth-child(3), .kpi:nth-child(3), .summary-card:nth-child(3), .stat-card:nth-child(3) { background: #f0f0f8 !important; }
+
+/* Grafico e relativo contenitore */
+canvas,
+canvas + *,
 .chart,
 .chart-container,
 .graph,
@@ -99,77 +104,78 @@ body :where(*):is(
 .cash-flow-chart-container,
 [data-chart],
 [data-chart-container] {
-  display: block !important;
-  width: 100% !important;
-  height: 220px !important;
-  min-height: 0 !important;
-  max-height: 220px !important;
-  margin: 18px 0 0 !important;
-  padding: 16px !important;
-  overflow: hidden !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 16px !important;
   background: var(--surface) !important;
+  border-color: var(--line) !important;
   color: var(--text) !important;
-  box-shadow: 0 8px 24px rgba(126, 107, 75, .045) !important;
+  box-shadow: 0 10px 30px rgba(126, 107, 75, .055) !important;
 }
 
-#cf-chart canvas,
-.chart canvas,
-.chart-container canvas,
-.graph canvas,
-.graph-container canvas,
-.cash-flow-chart canvas,
-.cash-flow-chart-container canvas,
-[data-chart] canvas,
-[data-chart-container] canvas {
-  display: block !important;
-  width: 100% !important;
-  height: 188px !important;
-  max-height: 188px !important;
-  background: transparent !important;
-  border: 0 !important;
+/* Titoli di grafici e sezioni */
+.chart-title,
+.graph-title,
+.section-title,
+.card-title,
+.panel-title,
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text) !important;
+  font-family: "DM Sans", Arial, sans-serif !important;
+  font-weight: 500 !important;
+}
+
+/* Numeri e valori: niente bianco su fondo chiaro */
+.amount, .value, .number, .price, .total, .balance, .ratio, .metric-value {
+  color: var(--text) !important;
+  font-weight: 500 !important;
+}
+
+.income, .positive, .credit { color: #659278 !important; }
+.expense, .negative, .debit { color: #c98579 !important; }
+
+/* Tabelle e righe di tutte le sezioni */
+table, thead, tbody, tr, th, td,
+.table, .data-table, .table-wrapper, .table-container {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--line) !important;
+}
+
+thead, th { background: var(--surface-2) !important; color: var(--muted) !important; font-weight: 500 !important; }
+td { color: #747169 !important; font-weight: 300 !important; }
+
+/* Pulsanti e tab: colori coerenti */
+button, .button, .btn, a.button, [role="button"] {
+  background: #eee9df !important;
+  color: #77746d !important;
+  border-color: transparent !important;
   box-shadow: none !important;
 }
 
-.chart-title,
-.graph-title,
-.chart h2,
-.chart h3,
-.chart-container h2,
-.chart-container h3,
-.graph h2,
-.graph h3 {
-  color: var(--muted) !important;
-  font-size: 13px !important;
+button:hover, .button:hover, .btn:hover, a.button:hover, [role="button"]:hover {
+  background: #e4ded2 !important;
+  color: #66635c !important;
+}
+
+#cf-import, .primary, .btn-primary, button.primary, [data-primary="true"] {
+  background: var(--sage) !important;
+  color: #fff !important;
+}
+
+/* Mantiene leggibile il titolo principale */
+#cashflow-controls::before {
+  content: "Jo & Eli Control Room" !important;
+  color: var(--text) !important;
+  font-family: "Playfair Display", Georgia, serif !important;
   font-weight: 400 !important;
 }
 
-@media (max-width: 700px) {
-  #cf-chart,
-  .chart,
-  .chart-container,
-  .graph,
-  .graph-container,
-  .cash-flow-chart,
-  .cash-flow-chart-container,
-  [data-chart],
-  [data-chart-container] {
-    height: 190px !important;
-    max-height: 190px !important;
-    padding: 12px !important;
-  }
+/* Override degli stili inline non importanti */
+[style*="background"], [style*="background-color"] {
+  background-color: var(--surface) !important;
+  background-image: none !important;
+}
 
-  #cf-chart canvas,
-  .chart canvas,
-  .chart-container canvas,
-  .graph canvas,
-  .graph-container canvas,
-  .cash-flow-chart canvas,
-  .cash-flow-chart-container canvas,
-  [data-chart] canvas,
-  [data-chart-container] canvas {
-    height: 164px !important;
-    max-height: 164px !important;
+@media (max-width: 700px) {
+  .metric, .metrics, .metric-card, .kpi, .kpi-card, .summary-card, .stat-card, .card, .panel, .widget, .tile {
+    width: 100%;
   }
 }
