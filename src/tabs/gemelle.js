@@ -4,31 +4,14 @@ import { money, todayIso } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
 import { lineChart } from "../lib/charts.js";
+import { fetchLivePrice } from "../lib/marketprice.js";
+import { investmentStats } from "../lib/investments.js";
 
 const TWIN_NAMES = { Ambra: "V80A - Ambra", Bianca: "V80A - Bianca" };
 let activePerson = "";
 
 function findInvestment(name) {
   return getState().investments.find(inv => inv.name === name);
-}
-
-function twinStats(name) {
-  const inv = findInvestment(name);
-  if (!inv) return null;
-  const txs = getState().investmentTransactions
-    .filter(t => t.investment_id === inv.id)
-    .sort((a, b) => new Date(a.transaction_date) - new Date(b.transaction_date));
-  const units = txs.reduce((s, t) => s + Number(t.units || 0), 0);
-  const invested = txs.reduce((s, t) => s + Number(t.amount || 0), 0);
-  const currentValue = units * Number(inv.current_value || 0);
-
-  let cumulative = 0;
-  const points = txs.map(t => {
-    cumulative += Number(t.amount || 0);
-    return { x: t.transaction_date, y: cumulative };
-  });
-
-  return { inv, units, invested, currentValue, points };
 }
 
 export function render() {
@@ -39,14 +22,15 @@ export function render() {
   container.innerHTML = "";
 
   ["Ambra", "Bianca"].forEach(person => {
-    const stats = twinStats(TWIN_NAMES[person]);
+    const inv = findInvestment(TWIN_NAMES[person]);
     const card = document.createElement("div");
     card.className = "m-card";
-    if (!stats) {
+    if (!inv) {
       card.innerHTML = `<div class="m-card-header"><span class="m-card-title">${person} (V80A)</span></div><div style="font-size:0.75rem;color:var(--text-muted)">Investimento non ancora presente in Supabase (esegui supabase/seed.sql).</div>`;
       container.appendChild(card);
       return;
     }
+    const stats = investmentStats(inv, getState().investmentTransactions);
     const profit = stats.currentValue - stats.invested;
     const profitColor = profit >= 0 ? "var(--accent-green)" : "var(--accent-red)";
     card.innerHTML = `
@@ -66,20 +50,19 @@ export function render() {
 }
 
 async function fetchLiveMarketPrice() {
+  const ambra = findInvestment(TWIN_NAMES.Ambra);
+  const ticker = ambra?.ticker || "V80A.DE";
   try {
-    const response = await fetch("/api/v80a-price");
-    if (!response.ok) throw new Error("Impossibile recuperare il prezzo live.");
-    const data = await response.json();
-    if (!data.price) throw new Error("Risposta prezzo non valida.");
+    const price = await fetchLivePrice(ticker);
     const now = new Date().toISOString();
     const updates = [TWIN_NAMES.Ambra, TWIN_NAMES.Bianca]
       .map(findInvestment)
       .filter(Boolean)
-      .map(inv => updateRow("investments", inv.id, { current_value: data.price, last_update: now }));
+      .map(inv => updateRow("investments", inv.id, { current_value: price, last_update: now }));
     await Promise.all(updates);
     await loadAll();
     render();
-    toast("Prezzo V80A aggiornato: " + money(data.price), "success");
+    toast("Prezzo V80A aggiornato: " + money(price), "success");
   } catch (err) {
     toastError(err);
   }

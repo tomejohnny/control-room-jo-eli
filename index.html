@@ -220,11 +220,7 @@
                     <span>💼 Capex &amp; Asset Allocation</span>
                     <button class="btn btn-green" data-open-modal="capexModal" style="font-size:0.65rem">+ Investimento</button>
                 </h2>
-                <table class="desktop-table">
-                    <thead><tr><th>Investimento</th><th style="text-align:right">PAC Mensile</th><th style="text-align:right">Valore Attuale</th><th style="text-align:center">Azioni</th></tr></thead>
-                    <tbody id="capex-table-body"></tbody>
-                </table>
-                <div id="capex-mobile" class="mobile-cards-container"></div>
+                <div id="capex-container" class="mobile-cards-container" style="display:flex"></div>
             </div>
         </div>
 
@@ -370,14 +366,29 @@
             <form id="capex-form">
                 <div class="form-group"><label>Nome</label><input type="text" id="cx-name" placeholder="Es. Trade Republic NASDAQ100" required></div>
                 <div class="form-group"><label>Provider</label><input type="text" id="cx-provider" placeholder="Es. Trade Republic"></div>
+                <div class="form-group"><label>Ticker (opz., per prezzo live)</label><input type="text" id="cx-ticker" placeholder="Es. XNAS.DE"></div>
                 <div class="flex-row">
-                    <div class="form-group"><label>Valore Attuale (€)</label><input type="number" step="0.01" id="cx-value" placeholder="0.00" required></div>
+                    <div class="form-group"><label id="cx-value-label">Valore Attuale (€)</label><input type="number" step="0.0001" id="cx-value" placeholder="0.00" required></div>
                     <div class="form-group"><label>PAC Mensile (€, opz.)</label><input type="number" step="0.01" id="cx-contribution" placeholder="50.00"></div>
                 </div>
                 <div class="form-group"><label>Stato</label><select id="cx-status"><option value="active">Attivo</option><option value="paused">In Pausa</option><option value="closed">Chiuso</option></select></div>
                 <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
                     <button type="button" class="btn btn-ghost" data-close="capexModal">Annulla</button>
                     <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL VERSAMENTO CAPEX -->
+    <div id="capexDepositModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3 id="capexDepositTitle">Versamento</h3>
+            <form id="capex-deposit-form">
+                <div class="form-group"><label>Importo Versato (€)</label><input type="number" step="0.01" min="0.01" id="cxd-amount" placeholder="50.00" required></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="capexDepositModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Registra Versamento</button>
                 </div>
             </form>
         </div>
