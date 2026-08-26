@@ -42,7 +42,7 @@ button { cursor: pointer; }
 }
 
 #cashflow-controls::before {
-  content: "Jo & Eli Control Room";
+  content: "Your money, beautifully organized";
   display: block;
   max-width: 650px;
   color: var(--ink);
