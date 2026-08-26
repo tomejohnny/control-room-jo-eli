@@ -3,999 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Family Holding Control Room | Executive Edition v19.5 Pro</title>
-    <style>
-        :root {
-            --bg-primary: #0b0f19;
-            --bg-secondary: #131b2e;
-            --bg-card: #1e293b;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-blue: #3b82f6;
-            --accent-amber: #f59e0b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-primary); color: var(--text-main); padding: 10px; }
-        .container { max-width: 1300px; margin: 0 auto; }
-        
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; }
-        h1 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
-        .badge { background: var(--accent-blue); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; display: inline-block; }
-        
-        /* Navigation Tabs: Wrapped */
-        .nav-tabs { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-        .tab-btn { background: var(--bg-secondary); color: var(--text-muted); border: 1px solid var(--border-color); padding: 7px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; flex: 1 1 auto; text-align: center; min-width: 90px; }
-        .tab-btn:hover { background: var(--bg-card); color: var(--text-main); }
-        .tab-btn.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
-
-        /* Responsive KPI Grid */
-        .grid-kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .kpi-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; position: relative; overflow: hidden; }
-        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent-blue); }
-        .kpi-card.green::before { background: var(--accent-green); }
-        .kpi-card.amber::before { background: var(--accent-amber); }
-        .kpi-card.red::before { background: var(--accent-red); }
-        .kpi-title { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
-        .kpi-value { font-size: 1.15rem; font-weight: 700; margin-bottom: 2px; }
-        .kpi-sub { font-size: 0.65rem; color: var(--text-muted); }
-
-        .view-section { display: none; }
-        .view-section.active { display: block; }
-
-        .card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
-        .card h2 { font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
-
-        /* Desktop Table View */
-        .desktop-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8rem; }
-        .desktop-table th, .desktop-table td { padding: 10px; border-bottom: 1px solid var(--border-color); }
-        .desktop-table th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.65rem; }
-        .desktop-table td.amount { font-weight: 600; font-family: monospace; }
-        
-        .text-green { color: var(--accent-green); }
-        .text-red { color: var(--accent-red); }
-        .text-amber { color: var(--accent-amber); }
-
-        /* Mobile Card View */
-        .mobile-cards-container { display: none; }
-
-        @media (max-width: 768px) {
-            .desktop-table { display: none; }
-            .mobile-cards-container { display: flex; flex-direction: column; gap: 10px; }
-            .m-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 6px; position: relative; }
-            .m-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-            .m-card-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
-            .m-card-amount { font-size: 0.95rem; font-weight: 700; font-family: monospace; }
-            .m-card-details { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; border-top: 1px dashed var(--border-color); padding-top: 6px; }
-        }
-
-        .btn { background: var(--accent-blue); color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
-        .btn:hover { opacity: 0.9; }
-        .btn-green { background: var(--accent-green); }
-        .btn-red { background: var(--accent-red); }
-
-        .chart-box { background: var(--bg-card); padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center; border: 1px solid var(--border-color); }
-        .calculator-box { background: var(--bg-card); padding: 12px; border-radius: 8px; margin-top: 10px; }
-        .calculator-box label { display: block; font-size: 0.7rem; margin-bottom: 4px; color: var(--text-muted); }
-        .calculator-box input { width: 100%; padding: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; color: white; font-size: 0.85rem; margin-bottom: 8px; }
-        .result-row { display: flex; justify-content: space-between; font-weight: 600; margin-top: 5px; padding-top: 5px; border-top: 1px dashed var(--border-color); font-size: 0.8rem; }
-
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; }
-        .form-group input, .form-group select { width: 100%; padding: 8px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 6px; color: white; font-size: 0.85rem; }
-        
-        .flex-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        @media (max-width: 600px) { .flex-row { grid-template-columns: 1fr; } }
-        
-        .actions-bar { display: flex; gap: 6px; margin-bottom: 15px; flex-wrap: wrap; }
-
-        /* Modal */
-        .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); justify-content:center; align-items:center; z-index:1000; padding: 15px; }
-        .modal-content { background:var(--bg-secondary); padding:20px; border-radius:10px; width:100%; max-width:400px; border:1px solid var(--border-color); max-height: 90vh; overflow-y: auto; }
-    </style>
+    <title>Family Holding Control Room</title>
 </head>
 <body>
+
+    <div id="login-overlay" class="login-overlay hidden">
+        <div class="login-box">
+            <h1>Family Holding</h1>
+            <p class="hint">Control Room di Jo &amp; Eli</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-green" style="width:100%">Accedi</button>
+                <div id="login-error" class="login-error"></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-shell" class="app-shell">
     <div class="container">
         <header>
             <h1>Family Holding Control Room</h1>
-            <span class="badge">Executive v19.5 Pro</span>
+            <div class="header-actions">
+                <span id="header-user" class="header-user"></span>
+                <button id="logout-btn" class="btn btn-ghost">Esci</button>
+            </div>
         </header>
 
-        <!-- NAVIGATION TABS: WRAPPED -->
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchView('cashflow')">📊 Cash Flow</button>
-            <button class="tab-btn" onclick="switchView('incomes')">💶 Entrate Fisse</button>
-            <button class="tab-btn" onclick="switchView('budget')">📋 Master Budget</button>
-            <button class="tab-btn" onclick="switchView('gemelle')">🌱 Ambra & Bianca</button>
-            <button class="tab-btn" onclick="switchView('scadenziario')">🗓️ Scadenziario</button>
-            <button class="tab-btn" onclick="switchView('fisco')">🏛️ Fisco (27%)</button>
-            <button class="tab-btn" onclick="switchView('treasury')">📈 Treasury</button>
-            <button class="tab-btn" onclick="switchView('capex')">💼 Capex & PAC</button>
-            <button class="tab-btn" onclick="switchView('risk')">🛡️ Risk & Burn</button>
+            <button class="tab-btn active" data-view="cashflow">📊 Cash Flow</button>
+            <button class="tab-btn" data-view="incomes">💶 Entrate Fisse</button>
+            <button class="tab-btn" data-view="budget">📋 Master Budget</button>
+            <button class="tab-btn" data-view="gemelle">🌱 Ambra &amp; Bianca</button>
+            <button class="tab-btn" data-view="scadenziario">🗓️ Scadenziario</button>
+            <button class="tab-btn" data-view="fisco">🏛️ Fisco (27%)</button>
+            <button class="tab-btn" data-view="treasury">📈 Treasury</button>
+            <button class="tab-btn" data-view="capex">💼 Capex &amp; PAC</button>
+            <button class="tab-btn" data-view="risk">🛡️ Risk &amp; Burn</button>
         </div>
 
         <div class="actions-bar">
-            <button class="btn btn-green" onclick="openModal()">+ Movimento</button>
-            <button class="btn btn-green" style="background:var(--accent-amber);" onclick="openBudgetModal()">+ Spesa</button>
-            <button class="btn btn-green" style="background:var(--accent-blue);" onclick="openIncomeModal()">+ Entrata Fissa</button>
-            <button class="btn btn-green" style="background:var(--accent-blue);" onclick="openScadModal()">+ Scadenza</button>
-            <button class="btn" onclick="exportData()">Backup (iOS Fix)</button>
-            <button class="btn" onclick="importDataPrompt()">Carica</button>
-            <button class="btn btn-red" onclick="resetData()">Reset</button>
+            <button class="btn btn-green" data-open-modal="txModal">+ Movimento</button>
+            <button class="btn btn-amber" data-open-modal="budgetModal">+ Spesa</button>
+            <button class="btn" data-open-modal="incomeModal">+ Entrata Fissa</button>
+            <button class="btn" data-open-modal="scadModal">+ Scadenza</button>
         </div>
 
-        <!-- GLOBAL KPI BAR -->
         <div class="grid-kpi">
-            <div class="kpi-card green">
-                <div class="kpi-title">Banca (Post-Auto)</div>
-                <div class="kpi-value" id="kpi-banca">€ 3.985,07</div>
-                <div class="kpi-sub">Banca della Marca</div>
-            </div>
             <div class="kpi-card">
-                <div class="kpi-title">Pool Cassa Agosto</div>
-                <div class="kpi-value" id="kpi-pool">€ 9.485,07</div>
-                <div class="kpi-sub">Inclusi Tessaro (€ 5.500)</div>
+                <div class="kpi-title">Saldo Cassa</div>
+                <div class="kpi-value" id="kpi-balance">€ 0,00</div>
+                <div class="kpi-sub">Somma movimenti registrati</div>
+            </div>
+            <div class="kpi-card" id="kpi-card-margin">
+                <div class="kpi-title">Margine Fine Mese</div>
+                <div class="kpi-value" id="kpi-margin">€ 0,00</div>
+                <div class="kpi-sub">Saldo meno scadenze del mese</div>
             </div>
             <div class="kpi-card amber">
-                <div class="kpi-title">DSCR Ratio (S.p.A.)</div>
-                <div class="kpi-value text-green" id="kpi-dscr">1.08x</div>
-                <div class="kpi-sub">Copertura (>1.0)</div>
+                <div class="kpi-title">DSCR Ratio</div>
+                <div class="kpi-value" id="kpi-dscr">n/d</div>
+                <div class="kpi-sub">Copertura debiti (&gt;1.0)</div>
             </div>
-            <div class="kpi-card green" id="kpi-card-final">
-                <div class="kpi-title">Saldo Fine Agosto</div>
-                <div class="kpi-value" id="kpi-final">+ € 719,36</div>
-                <div class="kpi-sub">Margine sicurezza</div>
+            <div class="kpi-card">
+                <div class="kpi-title">Liquidità</div>
+                <div class="kpi-value" id="kpi-liquidity">n/d</div>
+                <div class="kpi-sub">Mesi di riserva</div>
             </div>
         </div>
 
-        <!-- VIEW 1: CASH FLOW & CHARTS -->
+        <!-- CASH FLOW -->
         <div id="view-cashflow" class="view-section active">
             <div class="card">
-                <h2><span>📊 Cash Flow Consolidato</span></h2>
+                <h2>
+                    <span>📊 Cash Flow Consolidato</span>
+                    <span>
+                        <button class="btn btn-ghost" id="cf-import" style="font-size:0.65rem">Importa CSV</button>
+                        <input id="cf-file" type="file" accept=".csv,text/csv" hidden>
+                    </span>
+                </h2>
+                <div class="flex-row" style="margin-bottom:10px">
+                    <input id="cf-search" placeholder="Cerca descrizione o soggetto">
+                    <input id="cf-month" type="month">
+                </div>
+                <div class="flex-row" style="margin-bottom:10px">
+                    <select id="cf-type"><option value="">Tutti i tipi</option><option value="ENTRATA">Entrata</option><option value="USCITA">Uscita</option></select>
+                    <button class="btn btn-ghost" id="cf-reset">Azzera filtri</button>
+                </div>
+                <div id="cf-summary" style="font-size:0.75rem;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px"></div>
                 <table class="desktop-table">
                     <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Descrizione</th>
-                            <th>Soggetto</th>
-                            <th>Tipo</th>
-                            <th style="text-align: right;">Importo</th>
-                            <th style="text-align: center;">Azioni</th>
-                        </tr>
+                        <tr><th>Data</th><th>Descrizione</th><th>Soggetto</th><th>Tipo</th><th style="text-align:right">Importo</th><th style="text-align:center">Azioni</th></tr>
                     </thead>
-                    <tbody id="tx-table-body"></tbody>
+                    <tbody id="cf-table-body"></tbody>
                 </table>
-                <div id="tx-mobile-container" class="mobile-cards-container"></div>
-
-                <div class="chart-box">
-                    <h3 style="font-size: 0.85rem; margin-bottom: 12px; color: var(--text-muted);">Grafico Flussi di Cassa Agosto 2026</h3>
-                    <svg viewBox="0 0 600 220" width="100%" height="180" style="background:var(--bg-secondary); border-radius:6px; padding:5px;">
-                        <line x1="50" y1="30" x2="580" y2="30" stroke="#334155" stroke-dasharray="4"/>
-                        <line x1="50" y1="90" x2="580" y2="90" stroke="#334155" stroke-dasharray="4"/>
-                        <line x1="50" y1="150" x2="580" y2="150" stroke="#334155" stroke-dasharray="4"/>
-                        <rect x="100" y="45" width="80" height="105" fill="#3b82f6" rx="4"/>
-                        <text x="140" y="175" fill="#f8fafc" font-size="11" text-anchor="middle">Pool Cassa</text>
-                        <text x="140" y="38" fill="#3b82f6" font-size="12" font-weight="bold" text-anchor="middle">€ 9.485</text>
-                        <rect x="260" y="52" width="80" height="98" fill="#ef4444" rx="4"/>
-                        <text x="300" y="175" fill="#f8fafc" font-size="11" text-anchor="middle">Uscite Fisse</text>
-                        <text x="300" y="45" fill="#ef4444" font-size="12" font-weight="bold" text-anchor="middle">€ 8.765</text>
-                        <rect x="420" y="138" width="80" height="12" fill="#10b981" rx="4"/>
-                        <text x="460" y="175" fill="#f8fafc" font-size="11" text-anchor="middle">Margine</text>
-                        <text x="460" y="130" fill="#10b981" font-size="12" font-weight="bold" text-anchor="middle">€ 719</text>
-                    </svg>
-                </div>
+                <div id="cf-mobile" class="mobile-cards-container"></div>
             </div>
         </div>
 
-        <!-- VIEW 1.1: ENTRATE FISSE MENSILI (NEW MANAGEMENT TAB) -->
+        <!-- ENTRATE FISSE -->
         <div id="view-incomes" class="view-section">
             <div class="card">
-                <h2>💶 Gestione Entrate Fisse Mensili (es. Contratti)</h2>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Gestisci qui le tue entrate ricorrenti (es. Studio Metroquadrato di Elisa a 1.700 €/mese).</p>
+                <h2>💶 Gestione Entrate Fisse Mensili</h2>
+                <p class="hint">Entrate ricorrenti (es. consulenze, stipendi).</p>
                 <table class="desktop-table">
-                    <thead>
-                        <tr>
-                            <th>Descrizione / Fonte</th>
-                            <th>Soggetto</th>
-                            <th>Cadenza</th>
-                            <th style="text-align: right;">Importo Mensile (€)</th>
-                            <th style="text-align: center;">Azioni</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Descrizione / Fonte</th><th>Soggetto</th><th>Cadenza</th><th style="text-align:right">Importo Mensile</th><th style="text-align:center">Azioni</th></tr></thead>
                     <tbody id="incomes-table-body"></tbody>
                 </table>
-                <div id="incomes-mobile-container" class="mobile-cards-container"></div>
-
-                <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 10px; border-radius: 8px; flex-wrap: wrap; gap: 5px;">
-                    <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">TOTALE ENTRATE FISSE MENSILI:</span>
-                    <span id="incomes-total-sum" class="amount text-green" style="font-size: 1rem;">€ 1.700,00</span>
+                <div id="incomes-mobile" class="mobile-cards-container"></div>
+                <div class="total-bar">
+                    <span class="label">TOTALE ENTRATE FISSE MENSILI ATTIVE:</span>
+                    <span id="incomes-total-sum" class="value amount text-green">€ 0,00</span>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 1.2: MASTER BUDGET & INVENTARIO SPESE -->
+        <!-- MASTER BUDGET -->
         <div id="view-budget" class="view-section">
             <div class="card">
-                <h2>📋 Master Budget & Inventario Spese</h2>
+                <h2>📋 Master Budget &amp; Inventario Spese</h2>
                 <table class="desktop-table">
-                    <thead>
-                        <tr>
-                            <th>Voce di Spesa / Debito</th>
-                            <th>Categoria</th>
-                            <th>Soggetto</th>
-                            <th>Cadenza</th>
-                            <th style="text-align: right;">Importo (€)</th>
-                            <th style="text-align: center;">Azioni</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Voce di Spesa / Debito</th><th>Categoria</th><th>Soggetto</th><th>Cadenza</th><th style="text-align:right">Importo</th><th style="text-align:center">Azioni</th></tr></thead>
                     <tbody id="budget-table-body"></tbody>
                 </table>
-                <div id="budget-mobile-container" class="mobile-cards-container"></div>
-
-                <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 10px; border-radius: 8px; flex-wrap: wrap; gap: 5px;">
-                    <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">TOTALE USCITE MENSILI:</span>
-                    <span id="budget-total-sum" class="amount text-red" style="font-size: 1rem;">€ 5.268,09</span>
+                <div id="budget-mobile" class="mobile-cards-container"></div>
+                <div class="total-bar">
+                    <span class="label">TOTALE USCITE MENSILI ATTIVE:</span>
+                    <span id="budget-total-sum" class="value amount text-red">€ 0,00</span>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 1.3: AMBRA & BIANCA LIVE TRACKER (V80A) -->
+        <!-- AMBRA & BIANCA -->
         <div id="view-gemelle" class="view-section">
             <div class="card">
-                <h2>🌱 Ambra & Bianca (Live Tracker - Vanguard V80A)</h2>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Gestione dinamica dei versamenti e monitoraggio live del portafoglio.</p>
-                
-                <div style="margin-bottom: 15px; background: var(--bg-card); padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap:8px;">
-                    <span>Prezzo V80A: <strong id="display-v80a-price" style="color:var(--accent-blue)">€ 28,50</strong></span>
-                    <div style="display:flex; gap:6px;">
-                        <button class="btn" style="padding:4px 8px; font-size:0.7rem; background:var(--accent-green);" onclick="fetchLiveMarketPrice()">Refresh Live</button>
-                        <button class="btn" style="padding:4px 8px; font-size:0.7rem;" onclick="updatePriceManually()">Modifica Manuale</button>
+                <h2>🌱 Ambra &amp; Bianca (Vanguard V80A)</h2>
+                <p class="hint">Gestione versamenti e monitoraggio del portafoglio di studio.</p>
+                <div style="margin-bottom:15px;background:var(--bg-card);padding:10px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;flex-wrap:wrap;gap:8px">
+                    <span>Prezzo V80A: <strong id="display-v80a-price" style="color:var(--accent-blue)">€ 0,00</strong></span>
+                    <div style="display:flex;gap:6px">
+                        <button class="btn btn-green" id="refresh-live-price" style="padding:4px 8px;font-size:0.7rem">Refresh Live</button>
+                        <button class="btn btn-ghost" id="update-price-manually" style="padding:4px 8px;font-size:0.7rem">Modifica Manuale</button>
                     </div>
                 </div>
-
-                <div id="gemelle-live-container"></div>
-
-                <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn btn-green" onclick="openGemModal('Ambra')">+ Versamento Ambra</button>
-                    <button class="btn btn-green" onclick="openGemModal('Bianca')">+ Versamento Bianca</button>
+                <div id="gemelle-live-container" class="mobile-cards-container" style="display:flex"></div>
+                <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap">
+                    <button class="btn btn-green" data-open-gem="Ambra">+ Versamento Ambra</button>
+                    <button class="btn btn-green" data-open-gem="Bianca">+ Versamento Bianca</button>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 1.5: SCADENZIARIO & ALERT -->
+        <!-- SCADENZIARIO -->
         <div id="view-scadenziario" class="view-section">
             <div class="card">
-                <h2>🗓️ Scadenziario Fiscale & Finanziario</h2>
+                <h2>🗓️ Scadenziario Fiscale &amp; Finanziario</h2>
                 <table class="desktop-table">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Descrizione</th>
-                            <th>Categoria</th>
-                            <th style="text-align: right;">Importo</th>
-                            <th style="text-align: center;">Stato</th>
-                            <th style="text-align: center;">Azioni</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>Data</th><th>Descrizione</th><th>Categoria</th><th style="text-align:right">Importo</th><th style="text-align:center">Stato</th><th style="text-align:center">Azioni</th></tr></thead>
                     <tbody id="scad-table-body"></tbody>
                 </table>
-                <div id="scad-mobile-container" class="mobile-cards-container"></div>
+                <div id="scad-mobile" class="mobile-cards-container"></div>
             </div>
         </div>
 
-        <!-- VIEW 2: FISCO & 27% ENGINE -->
+        <!-- FISCO -->
         <div id="view-fisco" class="view-section">
             <div class="card">
-                <h2>🏛️ Cassetto Fiscale & Forfettario (27%)</h2>
+                <h2>🏛️ Cassetto Fiscale &amp; Forfettario (27%)</h2>
+                <p class="hint">Obbligazioni con categoria "Fisco" nello Scadenziario.</p>
                 <table class="desktop-table">
-                    <thead>
-                        <tr><th>Obbligazione Fiscale</th><th>Soggetto</th><th>Scadenza</th><th style="text-align: right;">Importo</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Pacchetto F24 Estivo/Autunnale (5 rate)</td><td>Jo</td><td>Ago - Dic</td><td class="amount" style="text-align: right;">€ 14.705,22</td></tr>
-                        <tr><td>2° Acconto Novembre (Storico)</td><td>Jo</td><td>30/11/2026</td><td class="amount" style="text-align: right;">€ 4.286,00</td></tr>
-                        <tr><td>2° Acconto Novembre (Storico)</td><td>Eli</td><td>30/11/2026</td><td class="amount" style="text-align: right;">€ 278,61</td></tr>
-                    </tbody>
+                    <thead><tr><th>Obbligazione Fiscale</th><th>Soggetto</th><th>Scadenza</th><th style="text-align:right">Importo</th></tr></thead>
+                    <tbody id="fisco-table-body"></tbody>
                 </table>
-                <div class="mobile-cards-container">
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">Pacchetto F24 Estivo/Autunnale</span><span class="m-card-amount text-amber">€ 14.705,22</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Soggetto: Jo | Scadenza: Ago - Dic</div>
-                    </div>
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">2° Acconto Novembre (Jo)</span><span class="m-card-amount text-amber">€ 4.286,00</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Soggetto: Jo | Scadenza: 30/11/2026</div>
-                    </div>
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">2° Acconto Novembre (Eli)</span><span class="m-card-amount text-amber">€ 278,61</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Soggetto: Eli | Scadenza: 30/11/2026</div>
-                    </div>
-                </div>
+                <div id="fisco-mobile" class="mobile-cards-container"></div>
             </div>
-
             <div class="card">
                 <h2>⚡ Simulatore Accantonamento 27%</h2>
                 <div class="calculator-box">
                     <label for="invoiceAmount">Importo Fattura Lorda (€):</label>
-                    <input type="number" id="invoiceAmount" value="5500" oninput="calculateTax()">
-                    <div class="result-row"><span>INPS Gestione Sep. (22.45%):</span><span id="inpsResult" class="text-amber">€ 1.234,75</span></div>
-                    <div class="result-row"><span>Imposta Sostitutiva 5% (4.31%):</span><span id="taxResult" style="color: var(--accent-blue);">€ 237,05</span></div>
-                    <div class="result-row" style="font-size: 0.9rem; margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 6px;"><span>Totale Accantonato (26.76%):</span><span id="totalResult" class="text-green">€ 1.471,80</span></div>
+                    <input type="number" id="invoiceAmount" value="5500">
+                    <div class="result-row"><span>INPS Gestione Sep. (22.45%):</span><span id="inpsResult" class="text-amber">€ 0,00</span></div>
+                    <div class="result-row"><span>Imposta Sostitutiva 5% (4.31%):</span><span id="taxResult" style="color:var(--accent-blue)">€ 0,00</span></div>
+                    <div class="result-row" style="font-size:0.9rem"><span>Totale Accantonato (26.76%):</span><span id="totalResult" class="text-green">€ 0,00</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW 3: TREASURY -->
+        <!-- TREASURY -->
         <div id="view-treasury" class="view-section">
             <div class="card">
-                <h2>📈 Treasury & Working Capital (12 Mesi)</h2>
+                <h2>📈 Treasury &amp; Working Capital (12 Mesi)</h2>
+                <p class="hint">Proiezione trimestrale rolling da entrate fisse, spese fisse e scadenze.</p>
                 <table class="desktop-table">
-                    <thead><tr><th>Orizzonte</th><th>Entrate</th><th>Uscite Fisse</th><th style="text-align: right;">Netto</th></tr></thead>
-                    <tbody>
-                        <tr><td>Q3 2026 (Set - Dic)</td><td>€ 24.500,00</td><td>€ 18.200,00</td><td class="amount text-green" style="text-align: right;">+ € 6.300,00</td></tr>
-                        <tr><td>Q1 2027 (Gen - Mar)</td><td>€ 18.000,00</td><td>€ 14.500,00</td><td class="amount text-green" style="text-align: right;">+ € 3.500,00</td></tr>
-                        <tr><td>Q2 2027 (Apr - Giu)</td><td>€ 19.500,00</td><td>€ 14.500,00</td><td class="amount text-green" style="text-align: right;">+ € 5.000,00</td></tr>
-                    </tbody>
+                    <thead><tr><th>Trimestre</th><th>Entrate</th><th>Uscite</th><th style="text-align:right">Netto</th></tr></thead>
+                    <tbody id="treasury-table-body"></tbody>
                 </table>
-                <div class="mobile-cards-container">
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">Q3 2026 (Set - Dic)</span><span class="m-card-amount text-green">+ € 6.300,00</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Entrate: € 24.500 | Uscite: € 18.200</div>
-                    </div>
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">Q1 2027 (Gen - Mar)</span><span class="m-card-amount text-green">+ € 3.500,00</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Entrate: € 18.000 | Uscite: € 14.500</div>
-                    </div>
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">Q2 2027 (Apr - Giu)</span><span class="m-card-amount text-green">+ € 5.000,00</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Entrate: € 19.500 | Uscite: € 14.500</div>
-                    </div>
-                </div>
+                <div id="treasury-mobile" class="mobile-cards-container"></div>
             </div>
         </div>
 
-        <!-- VIEW 4: CAPEX & PAC -->
+        <!-- CAPEX & PAC -->
         <div id="view-capex" class="view-section">
             <div class="card">
-                <h2>💼 Capex & Asset Allocation</h2>
+                <h2>
+                    <span>💼 Capex &amp; Asset Allocation</span>
+                    <button class="btn btn-green" data-open-modal="capexModal" style="font-size:0.65rem">+ Investimento</button>
+                </h2>
                 <table class="desktop-table">
-                    <tr><td>Trade Republic (NASDAQ 100)</td><td class="amount text-green" style="text-align: right;">€ 50,00 /mo (Attivo)</td></tr>
-                    <tr><td>Fondo Studio Ambra & Bianca (V80A)</td><td class="amount" style="color: var(--accent-blue); text-align: right;">In Accumulo (Vedi Tab Dedicata)</td></tr>
+                    <thead><tr><th>Investimento</th><th style="text-align:right">PAC Mensile</th><th style="text-align:right">Valore Attuale</th><th style="text-align:center">Azioni</th></tr></thead>
+                    <tbody id="capex-table-body"></tbody>
                 </table>
-                <div class="mobile-cards-container">
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">Trade Republic (NASDAQ 100)</span><span class="m-card-amount text-green">€ 50,00 /mo</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Stato: Attivo (PAC mensile)</div>
-                    </div>
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">Fondo Studio Ambra & Bianca (V80A)</span><span class="m-card-amount" style="color: var(--accent-blue);">In Accumulo</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Visualizzabile in tab dedicata</div>
-                    </div>
-                </div>
+                <div id="capex-mobile" class="mobile-cards-container"></div>
             </div>
         </div>
 
-        <!-- VIEW 5: RISK MANAGEMENT -->
+        <!-- RISK -->
         <div id="view-risk" class="view-section">
             <div class="card">
-                <h2>🛡️ Risk Management & Burn Rate</h2>
-                <table class="desktop-table">
-                    <tr><td>Riserva di Liquidità (Safety)</td><td class="amount text-green" style="text-align: right;">3.2 Mesi</td></tr>
-                    <tr><td>Covenant Status (DSCR)</td><td class="amount text-green" style="text-align: right;">COMPLIANT (1.08x)</td></tr>
-                    <tr><td>Piani Klarna Residui</td><td class="amount text-red" style="text-align: right;">€ 270,00</td></tr>
-                </table>
-                <div class="mobile-cards-container">
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">Riserva di Liquidità (Safety)</span><span class="m-card-amount text-green">3.2 Mesi</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Copertura burn rate operativo</div>
-                    </div>
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">Covenant Status (DSCR)</span><span class="m-card-amount text-green">COMPLIANT (1.08x)</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Copertura del debito (> 1.0)</div>
-                    </div>
-                    <div class="m-card">
-                        <div class="m-card-header"><span class="m-card-title">Piani Klarna Residui</span><span class="m-card-amount text-red">€ 270,00</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">Scadenza agosto 2027</div>
-                    </div>
-                </div>
+                <h2>🛡️ Risk Management &amp; Burn Rate</h2>
+                <div id="risk-container"></div>
             </div>
         </div>
     </div>
+    </div>
 
-    <!-- MODAL AGGIUNGI MOVIMENTO -->
+    <!-- MODAL MOVIMENTO -->
     <div id="txModal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-bottom:12px; font-size:1rem;">Nuovo Movimento Cassa</h3>
-            <div class="form-group"><label>Data</label><input type="date" id="m-date" value="2026-08-18"></div>
-            <div class="form-group"><label>Descrizione</label><input type="text" id="m-desc" placeholder="Es. Consulenza Extra"></div>
-            <div class="flex-row">
-                <div class="form-group"><label>Soggetto</label><select id="m-person"><option value="Jo">Jo</option><option value="Eli">Eli</option><option value="Famiglia">Famiglia</option></select></div>
-                <div class="form-group"><label>Tipo</label><select id="m-type"><option value="Entrata">Entrata (+)</option><option value="Uscita">Uscita (-)</option></select></div>
-            </div>
-            <div class="form-group"><label>Importo (€)</label><input type="number" step="0.01" id="m-amount" placeholder="0.00"></div>
-            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
-                <button class="btn" style="background:var(--border-color)" onclick="closeModal()">Annulla</button>
-                <button class="btn btn-green" onclick="saveTransaction()">Salva</button>
-            </div>
+            <h3>Movimento Cassa</h3>
+            <form id="tx-form">
+                <div class="form-group"><label>Data</label><input type="date" id="m-date" required></div>
+                <div class="form-group"><label>Descrizione</label><input type="text" id="m-desc" placeholder="Es. Consulenza Extra" required></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Soggetto</label><select id="m-person"><option value="Jo">Jo</option><option value="Eli">Eli</option><option value="Famiglia">Famiglia</option></select></div>
+                    <div class="form-group"><label>Tipo</label><select id="m-type"><option value="ENTRATA">Entrata (+)</option><option value="USCITA">Uscita (-)</option></select></div>
+                </div>
+                <div class="form-group"><label>Conto</label><input type="text" id="m-account" placeholder="Es. Banca della Marca"></div>
+                <div class="form-group"><label>Importo (€)</label><input type="number" step="0.01" min="0" id="m-amount" placeholder="0.00" required></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="txModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- MODAL AGGIUNGI VOCE BUDGET -->
+    <!-- MODAL BUDGET -->
     <div id="budgetModal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-bottom:12px; font-size:1rem;">Nuova Voce Master Budget</h3>
-            <div class="form-group"><label>Voce di Spesa</label><input type="text" id="b-desc" placeholder="Es. Nuova Spesa"></div>
-            <div class="flex-row">
-                <div class="form-group"><label>Categoria</label><input type="text" id="b-cat" placeholder="Es. Utenza / Casa"></div>
-                <div class="form-group"><label>Soggetto</label><select id="b-person"><option value="Famiglia">Famiglia</option><option value="Jo">Jo</option><option value="Eli">Eli</option></select></div>
-            </div>
-            <div class="flex-row">
-                <div class="form-group"><label>Cadenza</label><select id="b-freq"><option value="Mensile">Mensile</option><option value="Annuale">Annuale</option><option value="Settimanale">Settimanale</option></select></div>
-                <div class="form-group"><label>Importo Mensile (€)</label><input type="number" step="0.01" id="b-amount" placeholder="0.00"></div>
-            </div>
-            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
-                <button class="btn" style="background:var(--border-color)" onclick="closeBudgetModal()">Annulla</button>
-                <button class="btn btn-green" onclick="saveBudgetExpense()">Salva</button>
-            </div>
+            <h3>Voce Master Budget</h3>
+            <form id="budget-form">
+                <div class="form-group"><label>Voce di Spesa</label><input type="text" id="b-desc" placeholder="Es. Nuova Spesa" required></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Categoria</label><input type="text" id="b-cat" placeholder="Es. Utenza / Casa"></div>
+                    <div class="form-group"><label>Soggetto</label><select id="b-person"><option value="Famiglia">Famiglia</option><option value="Jo">Jo</option><option value="Eli">Eli</option><option value="Jo & Eli">Jo &amp; Eli</option></select></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Cadenza</label><select id="b-freq"><option value="Mensile">Mensile</option><option value="Annuale (Mensilizzato)">Annuale (Mensilizzato)</option><option value="Settimanale (Mensilizzato)">Settimanale (Mensilizzato)</option></select></div>
+                    <div class="form-group"><label>Importo Mensile Equiv. (€)</label><input type="number" step="0.01" id="b-amount" placeholder="0.00" required></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Giorno Scadenza (opz.)</label><input type="number" min="1" max="31" id="b-dueday"></div>
+                    <div class="form-group" style="display:flex;align-items:flex-end;gap:6px"><label style="margin:0"><input type="checkbox" id="b-active" checked style="width:auto"> Attiva</label></div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="budgetModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- MODAL AGGIUNGI ENTRATA FISSA -->
+    <!-- MODAL ENTRATA FISSA -->
     <div id="incomeModal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-bottom:12px; font-size:1rem;">Nuova Entrata Fissa Mensile</h3>
-            <div class="form-group"><label>Descrizione / Fonte</label><input type="text" id="i-desc" placeholder="Es. Studio Metroquadrato"></div>
-            <div class="flex-row">
-                <div class="form-group"><label>Soggetto</label><select id="i-person"><option value="Eli">Eli</option><option value="Jo">Jo</option><option value="Famiglia">Famiglia</option></select></div>
-                <div class="form-group"><label>Cadenza</label><select id="i-freq"><option value="Mensile">Mensile</option></select></div>
-            </div>
-            <div class="form-group"><label>Importo Mensile (€)</label><input type="number" step="0.01" id="i-amount" placeholder="1700.00"></div>
-            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
-                <button class="btn" style="background:var(--border-color)" onclick="closeIncomeModal()">Annulla</button>
-                <button class="btn btn-green" onclick="saveFixedIncome()">Salva Entrata</button>
-            </div>
+            <h3>Entrata Fissa Mensile</h3>
+            <form id="income-form">
+                <div class="form-group"><label>Descrizione / Fonte</label><input type="text" id="i-desc" placeholder="Es. Studio Metroquadrato" required></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Soggetto</label><select id="i-person"><option value="Eli">Eli</option><option value="Jo">Jo</option><option value="Famiglia">Famiglia</option></select></div>
+                    <div class="form-group"><label>Cadenza</label><select id="i-freq"><option value="Mensile">Mensile</option></select></div>
+                </div>
+                <div class="form-group"><label>Importo Mensile (€)</label><input type="number" step="0.01" id="i-amount" placeholder="1700.00" required></div>
+                <div class="form-group"><label><input type="checkbox" id="i-active" checked style="width:auto"> Attiva</label></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="incomeModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- MODAL AGGIUNGI SCADENZA -->
+    <!-- MODAL SCADENZA -->
     <div id="scadModal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-bottom:12px; font-size:1rem;">Nuova Scadenza</h3>
-            <div class="form-group"><label>Data</label><input type="date" id="s-date" value="2026-08-18"></div>
-            <div class="form-group"><label>Descrizione</label><input type="text" id="s-desc" placeholder="Es. F24 / Mutuo"></div>
-            <div class="form-group"><label>Categoria</label><input type="text" id="s-cat" placeholder="Es. Fisco / Debito"></div>
-            <div class="form-group"><label>Importo (€)</label><input type="number" step="0.01" id="s-amount" placeholder="0.00"></div>
-            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
-                <button class="btn" style="background:var(--border-color)" onclick="closeScadModal()">Annulla</button>
-                <button class="btn btn-green" onclick="saveDeadline()">Salva</button>
-            </div>
+            <h3>Scadenza</h3>
+            <form id="scad-form">
+                <div class="form-group"><label>Data</label><input type="date" id="s-date" required></div>
+                <div class="form-group"><label>Descrizione</label><input type="text" id="s-title" placeholder="Es. F24 / Mutuo" required></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Categoria</label><input type="text" id="s-cat" placeholder="Es. Fisco / Debito"></div>
+                    <div class="form-group"><label>Soggetto</label><select id="s-person"><option value="Famiglia">Famiglia</option><option value="Jo">Jo</option><option value="Eli">Eli</option></select></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Priorità</label><select id="s-priority"><option value="Bassa">Bassa</option><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Critica">Critica</option></select></div>
+                    <div class="form-group"><label>Stato</label><select id="s-status"><option value="Pianificato">Pianificato</option><option value="In Scadenza">In Scadenza</option><option value="Critico">Critico</option><option value="Completato">Completato</option></select></div>
+                </div>
+                <div class="form-group"><label>Importo (€)</label><input type="number" step="0.01" id="s-amount" placeholder="0.00" required></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="scadModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- MODAL VERSAMENTO GEMELLE -->
     <div id="gemModal" class="modal-overlay">
         <div class="modal-content">
-            <h3 id="gemTitle" style="margin-bottom:12px; font-size:1rem;">Versamento</h3>
-            <div class="form-group"><label>Importo Versato (€)</label><input type="number" step="0.01" id="g-amount" placeholder="350.00"></div>
-            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
-                <button class="btn" style="background:var(--border-color)" onclick="closeGemModal()">Annulla</button>
-                <button class="btn btn-green" onclick="saveGemDeposit()">Registra Versamento</button>
-            </div>
+            <h3 id="gemTitle">Versamento</h3>
+            <form id="gem-form">
+                <div class="form-group"><label>Importo Versato (€)</label><input type="number" step="0.01" min="0.01" id="g-amount" placeholder="350.00" required></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="gemModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Registra Versamento</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <script>
-        // CONFIGURAZIONE LIVE API
-        const API_KEY = 'INSERISCI_QUI_API_KEY'; 
-        const TICKER = 'V80A.DE'; 
+    <!-- MODAL CAPEX -->
+    <div id="capexModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Investimento Capex/PAC</h3>
+            <form id="capex-form">
+                <div class="form-group"><label>Nome</label><input type="text" id="cx-name" placeholder="Es. Trade Republic NASDAQ100" required></div>
+                <div class="form-group"><label>Provider</label><input type="text" id="cx-provider" placeholder="Es. Trade Republic"></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Valore Attuale (€)</label><input type="number" step="0.01" id="cx-value" placeholder="0.00" required></div>
+                    <div class="form-group"><label>PAC Mensile (€, opz.)</label><input type="number" step="0.01" id="cx-contribution" placeholder="50.00"></div>
+                </div>
+                <div class="form-group"><label>Stato</label><select id="cx-status"><option value="active">Attivo</option><option value="paused">In Pausa</option><option value="closed">Chiuso</option></select></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="capexModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        function switchView(viewId) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + viewId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        let defaultTransactions = [
-            { id: 1, date: '2026-08-01', desc: 'Saldo Iniziale Banca della Marca', person: 'Famiglia', type: 'Entrata', amount: 4415.07 },
-            { id: 2, date: '2026-08-15', desc: 'Uscita Rate Yaris Cross (Saldate)', person: 'Jo', type: 'Uscita', amount: 430.00 },
-            { id: 3, date: '2026-08-15', desc: 'Accredito Stipendio Tessaro S.p.A.', person: 'Jo', type: 'Entrata', amount: 5500.00 },
-            { id: 4, date: '2026-08-18', desc: 'Rata Mutuo Bioedilizia', person: 'Famiglia', type: 'Uscita', amount: 2530.00 },
-            { id: 5, date: '2026-08-26', desc: 'Bolletta Enel', person: 'Famiglia', type: 'Uscita', amount: 297.00 },
-            { id: 6, date: '2026-08-31', desc: '1^ Rata F24 (Saldi + Acconti)', person: 'Jo', type: 'Uscita', amount: 2941.04 },
-            { id: 7, date: '2026-08-31', desc: 'Carte di Credito (Spese Luglio)', person: 'Jo & Eli', type: 'Uscita', amount: 2997.67 }
-        ];
-
-        let defaultBudget = [
-            { id: 401, desc: 'Mutuo Casa', cat: 'Debito / Immobiliare', person: 'Famiglia', freq: 'Mensile', amount: 2530.00 },
-            { id: 402, desc: 'Prestito Personale Banca', cat: 'Debito', person: 'Famiglia', freq: 'Mensile', amount: 255.00 },
-            { id: 403, desc: 'Agenzia delle Entrate', cat: 'Debito / Fiscale', person: 'Famiglia', freq: 'Mensile', amount: 157.00 },
-            { id: 404, desc: 'Spesa Alimentare e Beni di Consumo', cat: 'Famiglia / Supermercato', person: 'Famiglia', freq: 'Mensile', amount: 650.00 },
-            { id: 405, desc: 'Enel Energia', cat: 'Utenze Casa', person: 'Famiglia', freq: 'Mensile', amount: 150.00 },
-            { id: 406, desc: 'Servizio Acqua Potabile', cat: 'Utenze Casa', person: 'Famiglia', freq: 'Annuale (Mensilizzato)', amount: 37.50 },
-            { id: 407, desc: 'Savno Raccolta Rifiuti', cat: 'Utenze Casa', person: 'Famiglia', freq: 'Annuale (Mensilizzato)', amount: 20.83 },
-            { id: 408, desc: 'Assicurazione Casa', cat: 'Protezione', person: 'Famiglia', freq: 'Annuale (Mensilizzato)', amount: 25.00 },
-            { id: 409, desc: 'Mensa Scolastica Bambine', cat: 'Figlie', person: 'Famiglia', freq: 'Settimanale (Mensilizzato)', amount: 80.00 },
-            { id: 410, desc: 'Ginnastica Artistica Bambine', cat: 'Figlie', person: 'Famiglia', freq: 'Mensile', amount: 77.78 },
-            { id: 411, desc: 'Apparecchio Dentale Bambine', cat: 'Figlie (Salute)', person: 'Famiglia', freq: 'Mensile', amount: 141.67 },
-            { id: 412, desc: 'Benzina Yaris Cross (Elisa)', cat: 'Mobilità / Lavoro', person: 'Eli', freq: 'Annuale (Mensilizzato)', amount: 75.00 },
-            { id: 413, desc: 'Assicurazione Auto (Elisa)', cat: 'Mobilità / Lavoro', person: 'Eli', freq: 'Annuale (Mensilizzato)', amount: 58.33 },
-            { id: 414, desc: 'Tagliando & Gomme (Elisa)', cat: 'Mobilità / Lavoro', person: 'Eli', freq: 'Straordinario (Mensilizzato)', amount: 37.50 },
-            { id: 415, desc: 'Cane (Cibo + Veterinario)', cat: 'Animali', person: 'Famiglia', freq: 'Misto (Mensilizzato)', amount: 65.00 },
-            { id: 416, desc: 'Canva (Eli)', cat: 'Lavoro (Strumenti)', person: 'Eli', freq: 'Mensile', amount: 12.00 },
-            { id: 417, desc: 'Abbonamenti Gemini (Jo & Eli)', cat: 'Lavoro / Tech', person: 'Jo & Eli', freq: 'Mensile', amount: 44.00 },
-            { id: 418, desc: 'Fastweb Cellulare (Jo)', cat: 'Telecomunicazioni', person: 'Jo', freq: 'Mensile', amount: 13.00 },
-            { id: 419, desc: 'Wind Cellulare (Eli)', cat: 'Telecomunicazioni', person: 'Eli', freq: 'Mensile', amount: 12.00 },
-            { id: 420, desc: 'Abbonamento Sky', cat: 'Intrattenimento', person: 'Famiglia', freq: 'Mensile', amount: 27.24 },
-            { id: 421, desc: 'Amazon Music', cat: 'Intrattenimento', person: 'Famiglia', freq: 'Mensile', amount: 18.00 },
-            { id: 422, desc: 'Amazon Prime', cat: 'Servizi', person: 'Famiglia', freq: 'Annuale (Mensilizzato)', amount: 3.92 },
-            { id: 423, desc: 'Canone TV', cat: 'Tasse', person: 'Famiglia', freq: 'Annuale (Mensilizzato)', amount: 8.33 },
-            { id: 424, desc: 'CapCut', cat: 'Tech / Abbonamenti', person: 'Eli', freq: 'Mensile', amount: 23.99 },
-            { id: 425, desc: 'Abbigliamento Famiglia', cat: 'Spese Personali', person: 'Famiglia', freq: 'Annuale (Mensilizzato)', amount: 146.66 },
-            { id: 426, desc: 'Casa, Giardino e Piscina', cat: 'Manutenzione', person: 'Famiglia', freq: 'Annuale (Mensilizzato)', amount: 133.34 },
-            { id: 427, desc: 'Salute / Farmacia / Check-up', cat: 'Salute', person: 'Famiglia', freq: 'Annuale (Mensilizzato)', amount: 50.00 },
-            { id: 428, desc: 'Fondo Vacanze / Svago', cat: 'Tempo Libero', person: 'Famiglia', freq: 'Mensile', amount: 150.00 },
-            { id: 429, desc: 'PAC Trade Republic', cat: 'Investimenti', person: 'Jo', freq: 'Mensile', amount: 50.00 },
-            { id: 430, desc: 'Rata Yaris', cat: 'Debito', person: 'Jo', freq: 'Mensile', amount: 215.00 }
-        ];
-
-        let defaultFixedIncomes = [
-            { id: 501, desc: 'Studio Metroquadrato (Consulenza Elisa)', person: 'Eli', freq: 'Mensile', amount: 1700.00 }
-        ];
-
-        let defaultDeadlines = [
-            { id: 100, date: '2026-08-16', desc: 'Check Giornaliero GLG Opportunities', cat: 'Business', amount: 0.00, status: 'In Scadenza' },
-            { id: 101, date: '2026-08-18', desc: 'Rata Mutuo Bioedilizia', cat: 'Debito', amount: 2530.00, status: 'In Scadenza' },
-            { id: 102, date: '2026-08-26', desc: 'Bolletta Enel', cat: 'Utenza', amount: 297.00, status: 'Pianificato' },
-            { id: 103, date: '2026-08-31', desc: '1^ Rata F24 (Saldi + Acconti)', cat: 'Fisco', amount: 2941.04, status: 'Critico' },
-            { id: 104, date: '2026-11-30', desc: '2° Acconto Novembre (Jo)', cat: 'Fisco', amount: 4286.00, status: 'Pianificato' },
-            { id: 105, date: '2026-11-30', desc: '2° Acconto Novembre (Eli)', cat: 'Fisco', amount: 278.61, status: 'Pianificato' }
-        ];
-
-        let transactions = JSON.parse(localStorage.getItem('family_holding_tx_v19')) || defaultTransactions;
-        let budgetItems = JSON.parse(localStorage.getItem('family_holding_budget_v19')) || defaultBudget;
-        let fixedIncomes = JSON.parse(localStorage.getItem('family_holding_incomes_v19')) || defaultFixedIncomes;
-        let deadlines = JSON.parse(localStorage.getItem('family_holding_deadlines_v19')) || defaultDeadlines;
-
-        let livePrice = parseFloat(localStorage.getItem('v80a_price')) || 28.50;
-        let gemData = JSON.parse(localStorage.getItem('gemelle_v80a_data')) || {
-            Ambra: { invested: 0, units: 0 },
-            Bianca: { invested: 0, units: 0 }
-        };
-        let activeGem = '';
-
-        async function fetchLiveMarketPrice() {
-            if(API_KEY === 'OAZQL0YDKJ4K86P6') {
-                alert('Inserisci la tua API Key di Alpha Vantage nel codice per abilitare il feed live.');
-                return;
-            }
-            try {
-                let response = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${TICKER}&apikey=${API_KEY}`);
-                let data = await response.json();
-                if(data['Global Quote'] && data['Global Quote']['05. price']) {
-                    livePrice = parseFloat(data['Global Quote']['05. price']);
-                    localStorage.setItem('v80a_price', livePrice);
-                    renderGemelle();
-                    alert('Prezzo V80A aggiornato con successo: € ' + livePrice.toFixed(2));
-                } else {
-                    alert('Impossibile recuperare il prezzo live. Verifica la chiave o usa il tasto manuale.');
-                }
-            } catch(e) {
-                alert('Errore di connessione al server finanziario.');
-            }
-        }
-
-        function render() {
-            let tbody = document.getElementById('tx-table-body');
-            let tmobile = document.getElementById('tx-mobile-container');
-            tbody.innerHTML = '';
-            tmobile.innerHTML = '';
-            
-            let sumOutflows = 0;
-            let sumEntrateExtra = 0;
-
-            transactions.forEach((tx) => {
-                if(tx.id !== 1 && tx.id !== 3 && tx.id !== 2) {
-                    if(tx.type === 'Uscita') sumOutflows += tx.amount;
-                    else sumEntrateExtra += tx.amount;
-                }
-                
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${tx.date}</td>
-                    <td><strong>${tx.desc}</strong></td>
-                    <td>${tx.person}</td>
-                    <td><span class="badge" style="background:${tx.type === 'Entrata' ? 'var(--accent-green)' : 'var(--accent-red)'}">${tx.type}</span></td>
-                    <td class="amount ${tx.type === 'Entrata' ? 'text-green' : 'text-red'}" style="text-align: right;">
-                        ${tx.type === 'Entrata' ? '+ ' : '- '}€ ${tx.amount.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                    </td>
-                    <td style="text-align: center;">
-                        <button class="btn" style="background:var(--accent-red); padding:3px 6px; font-size:0.6rem;" onclick="deleteTx(${tx.id})">Elimina</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-
-                let card = document.createElement('div');
-                card.className = 'm-card';
-                card.innerHTML = `
-                    <div class="m-card-header">
-                        <span class="m-card-title">${tx.desc}</span>
-                        <span class="m-card-amount ${tx.type === 'Entrata' ? 'text-green' : 'text-red'}">${tx.type === 'Entrata' ? '+ ' : '- '}€ ${tx.amount.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                    </div>
-                    <div class="m-card-details">
-                        <span>${tx.date} - <strong>${tx.person}</strong></span>
-                        <div style="display:flex; gap:6px; align-items:center;">
-                            <span class="badge" style="background:${tx.type === 'Entrata' ? 'var(--accent-green)' : 'var(--accent-red)'}">${tx.type}</span>
-                            <button class="btn" style="background:var(--accent-red); padding:3px 8px; font-size:0.65rem;" onclick="deleteTx(${tx.id})">Elimina</button>
-                        </div>
-                    </div>
-                `;
-                tmobile.appendChild(card);
-            });
-
-            let exactFinal = 9485.07 - 8765.71 + sumEntrateExtra - (sumOutflows - (2530+297+2941.04+2997.67));
-            document.getElementById('kpi-pool').innerText = '€ ' + (9485.07).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            
-            let finalEl = document.getElementById('kpi-final');
-            let cardFinal = document.getElementById('kpi-card-final');
-            finalEl.innerText = (exactFinal >= 0 ? '+ ' : '- ') + '€ ' + Math.abs(exactFinal).toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            
-            if(exactFinal >= 0) {
-                cardFinal.className = 'kpi-card green';
-                finalEl.style.color = 'var(--accent-green)';
-            } else {
-                cardFinal.className = 'kpi-card red';
-                finalEl.style.color = 'var(--accent-red)';
-            }
-
-            renderIncomes();
-            renderBudget();
-            renderDeadlines();
-            renderGemelle();
-            localStorage.setItem('family_holding_tx_v19', JSON.stringify(transactions));
-        }
-
-        function renderIncomes() {
-            let ibody = document.getElementById('incomes-table-body');
-            let imobile = document.getElementById('incomes-mobile-container');
-            ibody.innerHTML = '';
-            imobile.innerHTML = '';
-            let totalIncomesSum = 0;
-
-            fixedIncomes.forEach((inc) => {
-                totalIncomesSum += inc.amount;
-                let badgeColor = 'var(--accent-green)';
-                if(inc.person === 'Jo') badgeColor = 'var(--accent-amber)';
-                else if(inc.person === 'Eli') badgeColor = 'var(--accent-blue)';
-
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${inc.desc}</strong></td>
-                    <td><span class="badge" style="background:${badgeColor}">${inc.person}</span></td>
-                    <td>${inc.freq}</td>
-                    <td class="amount text-green" style="text-align: right;">€ ${inc.amount.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td style="text-align: center;">
-                        <button class="btn" style="background:var(--accent-red); padding:3px 6px; font-size:0.6rem;" onclick="deleteIncome(${inc.id})">Elimina</button>
-                    </td>
-                `;
-                ibody.appendChild(tr);
-
-                let card = document.createElement('div');
-                card.className = 'm-card';
-                card.innerHTML = `
-                    <div class="m-card-header">
-                        <span class="m-card-title">${inc.desc}</span>
-                        <span class="m-card-amount text-green">€ ${inc.amount.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--text-muted);">Cadenza: ${inc.freq}</div>
-                    <div class="m-card-details">
-                        <span class="badge" style="background:${badgeColor}">${inc.person}</span>
-                        <button class="btn" style="background:var(--accent-red); padding:3px 8px; font-size:0.65rem;" onclick="deleteIncome(${inc.id})">Elimina</button>
-                    </div>
-                `;
-                imobile.appendChild(card);
-            });
-
-            document.getElementById('incomes-total-sum').innerText = '€ ' + totalIncomesSum.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            localStorage.setItem('family_holding_incomes_v19', JSON.stringify(fixedIncomes));
-        }
-
-        function renderBudget() {
-            let bbody = document.getElementById('budget-table-body');
-            let bmobile = document.getElementById('budget-mobile-container');
-            bbody.innerHTML = '';
-            bmobile.innerHTML = '';
-            let totalBudgetSum = 0;
-
-            budgetItems.forEach((b) => {
-                totalBudgetSum += b.amount;
-                let badgeColor = 'var(--accent-blue)';
-                if(b.person === 'Jo') badgeColor = 'var(--accent-amber)';
-                else if(b.person === 'Eli') badgeColor = 'var(--accent-green)';
-                else if(b.person === 'Jo & Eli') badgeColor = 'var(--accent-blue)';
-
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${b.desc}</strong></td>
-                    <td>${b.cat}</td>
-                    <td><span class="badge" style="background:${badgeColor}">${b.person}</span></td>
-                    <td>${b.freq}</td>
-                    <td class="amount text-red" style="text-align: right;">€ ${b.amount.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td style="text-align: center;">
-                        <button class="btn" style="background:var(--accent-red); padding:3px 6px; font-size:0.6rem;" onclick="deleteBudget(${b.id})">Elimina</button>
-                    </td>
-                `;
-                bbody.appendChild(tr);
-
-                let card = document.createElement('div');
-                card.className = 'm-card';
-                card.innerHTML = `
-                    <div class="m-card-header">
-                        <span class="m-card-title">${b.desc}</span>
-                        <span class="m-card-amount text-red">€ ${b.amount.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--text-muted);">Cat: <strong>${b.cat}</strong> | Cadenza: ${b.freq}</div>
-                    <div class="m-card-details">
-                        <span class="badge" style="background:${badgeColor}">${b.person}</span>
-                        <button class="btn" style="background:var(--accent-red); padding:3px 8px; font-size:0.65rem;" onclick="deleteBudget(${b.id})">Elimina</button>
-                    </div>
-                `;
-                bmobile.appendChild(card);
-            });
-
-            document.getElementById('budget-total-sum').innerText = '€ ' + totalBudgetSum.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            localStorage.setItem('family_holding_budget_v19', JSON.stringify(budgetItems));
-        }
-
-        function renderDeadlines() {
-            let sbody = document.getElementById('scad-table-body');
-            let smobile = document.getElementById('scad-mobile-container');
-            sbody.innerHTML = '';
-            smobile.innerHTML = '';
-            deadlines.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            deadlines.forEach((d) => {
-                let badgeColor = 'var(--accent-blue)';
-                if(d.status === 'Critico') badgeColor = 'var(--accent-red)';
-                else if(d.status === 'In Scadenza') badgeColor = 'var(--accent-amber)';
-                else if(d.status === 'Completato') badgeColor = 'var(--accent-green)';
-
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${d.date}</strong></td>
-                    <td>${d.desc}</td>
-                    <td>${d.cat}</td>
-                    <td class="amount text-amber" style="text-align: right;">€ ${d.amount.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td style="text-align: center;"><span class="badge" style="background:${badgeColor}">${d.status}</span></td>
-                    <td style="text-align: center;">
-                        <button class="btn" style="background:var(--accent-red); padding:3px 6px; font-size:0.6rem;" onclick="deleteDeadline(${d.id})">Elimina</button>
-                    </td>
-                `;
-                sbody.appendChild(tr);
-
-                let card = document.createElement('div');
-                card.className = 'm-card';
-                card.innerHTML = `
-                    <div class="m-card-header">
-                        <span class="m-card-title">${d.desc}</span>
-                        <span class="m-card-amount text-amber">€ ${d.amount.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--text-muted);">Data: <strong>${d.date}</strong> | Cat: ${d.cat}</div>
-                    <div class="m-card-details">
-                        <span class="badge" style="background:${badgeColor}">${d.status}</span>
-                        <button class="btn" style="background:var(--accent-red); padding:3px 8px; font-size:0.65rem;" onclick="deleteDeadline(${d.id})">Elimina</button>
-                    </div>
-                `;
-                smobile.appendChild(card);
-            });
-            localStorage.setItem('family_holding_deadlines_v19', JSON.stringify(deadlines));
-        }
-
-        function renderGemelle() {
-            document.getElementById('display-v80a-price').innerText = '€ ' + livePrice.toFixed(2);
-            let container = document.getElementById('gemelle-live-container');
-            container.innerHTML = '';
-            
-            ['Ambra', 'Bianca'].forEach(name => {
-                let data = gemData[name];
-                let currentValue = data.units * livePrice;
-                let profit = currentValue - data.invested;
-                let profitColor = profit >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
-                
-                let card = document.createElement('div');
-                card.className = 'm-card';
-                card.innerHTML = `
-                    <div class="m-card-header">
-                        <span class="m-card-title">${name} (V80A)</span>
-                        <span class="m-card-amount">€ ${currentValue.toFixed(2)}</span>
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--text-muted);">
-                        Capitale Investito: € ${data.invested.toFixed(2)} | Quote: ${data.units.toFixed(3)}
-                    </div>
-                    <div class="m-card-details">
-                        <span>Profitto/Perdita: <strong style="color:${profitColor}">€ ${profit.toFixed(2)}</strong></span>
-                        <button class="btn btn-red" style="padding:2px 6px; font-size:0.6rem;" onclick="resetGem('${name}')">Reset</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-            localStorage.setItem('gemelle_v80a_data', JSON.stringify(gemData));
-        }
-
-        function updatePriceManually() {
-            let p = prompt("Inserisci il prezzo attuale dell'ETF V80A:", livePrice);
-            if(p && !isNaN(p)) {
-                livePrice = parseFloat(p);
-                localStorage.setItem('v80a_price', livePrice);
-                renderGemelle();
-            }
-        }
-
-        function openGemModal(name) {
-            activeGem = name;
-            document.getElementById('gemTitle').innerText = 'Nuovo Versamento per ' + name;
-            document.getElementById('gemModal').style.display = 'flex';
-        }
-        function closeGemModal() { document.getElementById('gemModal').style.display = 'none'; }
-
-        function saveGemDeposit() {
-            let amount = parseFloat(document.getElementById('g-amount').value);
-            if(amount && amount > 0) {
-                let unitsBought = amount / livePrice;
-                gemData[activeGem].invested += amount;
-                gemData[activeGem].units += unitsBought;
-                closeGemModal();
-                renderGemelle();
-            } else {
-                alert('Inserisci un importo valido.');
-            }
-        }
-
-        function resetGem(name) {
-            if(confirm(`Vuoi azzerare i dati di ${name}?`)) {
-                gemData[name] = { invested: 0, units: 0 };
-                renderGemelle();
-            }
-        }
-
-        function calculateTax() {
-            let amount = parseFloat(document.getElementById('invoiceAmount').value) || 0;
-            let inps = amount * 0.2245;
-            let tax = amount * 0.0431;
-            let total = inps + tax;
-            document.getElementById('inpsResult').innerText = '€ ' + inps.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('taxResult').innerText = '€ ' + tax.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('totalResult').innerText = '€ ' + total.toLocaleString('it-IT', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        }
-
-        function openModal() { document.getElementById('txModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('txModal').style.display = 'none'; }
-        function openBudgetModal() { document.getElementById('budgetModal').style.display = 'flex'; }
-        function closeBudgetModal() { document.getElementById('budgetModal').style.display = 'none'; }
-        function openIncomeModal() { document.getElementById('incomeModal').style.display = 'flex'; }
-        function closeIncomeModal() { document.getElementById('incomeModal').style.display = 'none'; }
-        function openScadModal() { document.getElementById('scadModal').style.display = 'flex'; }
-        function closeScadModal() { document.getElementById('scadModal').style.display = 'none'; }
-
-        function saveTransaction() {
-            let date = document.getElementById('m-date').value;
-            let desc = document.getElementById('m-desc').value;
-            let person = document.getElementById('m-person').value;
-            let type = document.getElementById('m-type').value;
-            let amount = parseFloat(document.getElementById('m-amount').value);
-            if(!desc || isNaN(amount)) { alert('Inserisci descrizione e importo.'); return; }
-            transactions.push({ id: Date.now(), date, desc, person, type, amount });
-            closeModal();
-            render();
-        }
-
-        function saveBudgetExpense() {
-            let desc = document.getElementById('b-desc').value;
-            let cat = document.getElementById('b-cat').value;
-            let person = document.getElementById('b-person').value;
-            let freq = document.getElementById('b-freq').value;
-            let amount = parseFloat(document.getElementById('b-amount').value);
-            if(!desc || isNaN(amount)) { alert('Inserisci descrizione e importo spesa.'); return; }
-            budgetItems.push({ id: Date.now(), desc, cat, person, freq, amount });
-            closeBudgetModal();
-            renderBudget();
-        }
-
-        function saveFixedIncome() {
-            let desc = document.getElementById('i-desc').value;
-            let person = document.getElementById('i-person').value;
-            let freq = document.getElementById('i-freq').value;
-            let amount = parseFloat(document.getElementById('i-amount').value);
-            if(!desc || isNaN(amount)) { alert('Inserisci descrizione e importo entrata.'); return; }
-            fixedIncomes.push({ id: Date.now(), desc, person, freq, amount });
-            closeIncomeModal();
-            renderIncomes();
-        }
-
-        function saveDeadline() {
-            let date = document.getElementById('s-date').value;
-            let desc = document.getElementById('s-desc').value;
-            let cat = document.getElementById('s-cat').value;
-            let amount = parseFloat(document.getElementById('s-amount').value);
-            if(!desc || isNaN(amount)) { alert('Inserisci descrizione e importo scadenza.'); return; }
-            deadlines.push({ id: Date.now(), date, desc, cat, amount, status: 'Pianificato' });
-            closeScadModal();
-            renderDeadlines();
-        }
-
-        function deleteTx(id) {
-            if(id === 1) { alert('Impossibile eliminare il saldo iniziale.'); return; }
-            transactions = transactions.filter(t => t.id !== id);
-            render();
-        }
-
-        function deleteBudget(id) {
-            budgetItems = budgetItems.filter(b => b.id !== id);
-            renderBudget();
-        }
-
-        function deleteIncome(id) {
-            fixedIncomes = fixedIncomes.filter(i => i.id !== id);
-            renderIncomes();
-        }
-
-        function deleteDeadline(id) {
-            deadlines = deadlines.filter(d => d.id !== id);
-            renderDeadlines();
-        }
-
-        function resetData() {
-            if(confirm('Vuoi ripristinare tutti i dati di default?')) {
-                transactions = defaultTransactions;
-                budgetItems = defaultBudget;
-                fixedIncomes = defaultFixedIncomes;
-                deadlines = defaultDeadlines;
-                localStorage.removeItem('family_holding_tx_v19');
-                localStorage.removeItem('family_holding_budget_v19');
-                localStorage.removeItem('family_holding_incomes_v19');
-                localStorage.removeItem('family_holding_deadlines_v19');
-                render();
-            }
-        }
-
-        // FIX BLOB API PER iPHONE (Compatibile Safari Mobile)
-        function exportData() {
-            let data = { transactions, budgetItems, fixedIncomes, deadlines, gemData };
-            const jsonString = JSON.stringify(data, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const anchor = document.createElement('a');
-            anchor.href = url;
-            anchor.download = "family_holding_v19_backup.json";
-            
-            document.body.appendChild(anchor);
-            anchor.click();
-            document.body.removeChild(anchor);
-            URL.revokeObjectURL(url);
-        }
-
-        function importDataPrompt() {
-            let jsonStr = prompt("Incolla il codice JSON del backup:");
-            if(jsonStr) {
-                try {
-                    let parsed = JSON.parse(jsonStr);
-                    if(parsed.transactions) transactions = parsed.transactions;
-                    if(parsed.budgetItems) budgetItems = parsed.budgetItems;
-                    if(parsed.fixedIncomes) fixedIncomes = parsed.fixedIncomes;
-                    if(parsed.deadlines) deadlines = parsed.deadlines;
-                    if(parsed.gemData) { gemData = parsed.gemData; localStorage.setItem('gemelle_v80a_data', JSON.stringify(gemData)); }
-                    render();
-                    alert('Backup caricato con successo!');
-                } catch(e) { alert('Formato non valido.'); }
-            }
-        }
-
-        calculateTax();
-        render();
-    </script>
     <script type="module" src="/src/main.js"></script>
 </body>
 </html>
