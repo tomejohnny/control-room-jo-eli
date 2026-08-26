@@ -6,8 +6,6 @@ status.id = "supabase-status";
 status.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:9999;padding:10px 14px;border-radius:8px;background:#172033;color:#fff;font:14px system-ui;box-shadow:0 4px 18px rgba(0,0,0,.3)";
 document.body.appendChild(status);
 
-const table = document.querySelector("table");
-
 function money(value) {
   return new Intl.NumberFormat("it-IT", {
     style: "currency",
@@ -24,11 +22,17 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function renderMovements(rows) {
-  if (!table) return;
+function getCashFlowTable() {
+  const tables = [...document.querySelectorAll("table")];
+  return tables[0] || null;
+}
 
-  const header = table.querySelector("thead");
-  if (!header) return;
+function renderMovements(rows) {
+  const table = getCashFlowTable();
+  if (!table) {
+    showError("Tabella Cash Flow non trovata");
+    return;
+  }
 
   let body = table.querySelector("tbody");
   if (!body) {
@@ -37,12 +41,12 @@ function renderMovements(rows) {
   }
 
   body.innerHTML = rows.map((row) => {
-    const isIncome = row.movement_type === "ENTRATA";
-    const sign = isIncome ? "+" : "-";
-    const typeClass = isIncome ? "income" : "expense";
+    const income = row.movement_type === "ENTRATA";
+    const sign = income ? "+" : "-";
+    const typeClass = income ? "income" : "expense";
 
     return `
-      <tr data-id="${escapeHtml(row.id)}">
+      <tr data-db-id="${escapeHtml(row.id)}">
         <td>${escapeHtml(row.movement_date)}</td>
         <td>${escapeHtml(row.description)}</td>
         <td>${escapeHtml(row.subject)}</td>
@@ -58,6 +62,8 @@ function renderMovements(rows) {
       const id = button.dataset.id;
       if (!confirm("Eliminare questo movimento?")) return;
 
+      button.disabled = true;
+
       const { error } = await supabase
         .from("cash_movements")
         .delete()
@@ -65,6 +71,7 @@ function renderMovements(rows) {
 
       if (error) {
         showError(error.message);
+        button.disabled = false;
         return;
       }
 
@@ -97,7 +104,6 @@ async function loadMovements() {
   renderMovements(data || []);
   status.textContent = `Supabase collegato · ${data?.length || 0} movimenti`;
   status.style.background = "#087443";
-  setTimeout(() => status.remove(), 4000);
 }
 
 loadMovements();
