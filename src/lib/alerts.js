@@ -27,7 +27,7 @@ export function renderAlertBanner(deadlines, onNavigate) {
   const more = urgent.length > 4 ? ` +${urgent.length - 4} altre` : "";
 
   banner.innerHTML = `
-    <span>⚠️ <strong>${urgent.length} scadenza${urgent.length > 1 ? "e" : ""} da tenere d'occhio:</strong> ${items}${more}</span>
+    <span>⚠️ <strong>${urgent.length} ${urgent.length > 1 ? "scadenze" : "scadenza"} da tenere d'occhio:</strong> ${items}${more}</span>
     <button type="button" id="alert-banner-link" class="btn btn-ghost" style="font-size:0.7rem">Vai allo Scadenziario</button>
   `;
   banner.classList.add("visible");
