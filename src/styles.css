@@ -1,101 +1,42 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap");
+/* Aggiungi questo file DOPO styles-targeted-fix.css oppure in fondo a src/styles.css */
 
 :root {
-  --bg: #f4f0e7 !important;
-  --surface: #fffdf8 !important;
-  --surface-2: #faf7ef !important;
-  --text: #5b5a54 !important;
-  --muted: #99968c !important;
-  --line: #e7e1d6 !important;
-  --sage: #83a995 !important;
-  --sage-soft: #e9f2eb !important;
-  --coral: #d99a8e !important;
-  --coral-soft: #faece8 !important;
-  --lilac: #b7b7d2 !important;
-  --gold: #d9be7e !important;
+  --chart-paper: #fffdf8;
+  --chart-line: #e7e1d6;
+  --chart-grid: rgba(155, 150, 140, .16);
+  --chart-text: #99968c;
+  --chart-green: #83a995;
+  --chart-coral: #d99a8e;
+  --chart-blue: #b7b7d2;
 }
 
-html, body, #root, #app, main {
-  background: var(--bg) !important;
-  color: var(--text) !important;
-  font-family: "DM Sans", Arial, sans-serif !important;
-  font-weight: 400 !important;
+/* Ridimensiona il grafico principale: niente altezza enorme */
+#cf-chart {
+  display: block !important;
+  width: 100% !important;
+  height: 220px !important;
+  max-height: 220px !important;
+  min-height: 0 !important;
+  margin: 18px 0 0 !important;
+  padding: 16px !important;
+  border: 1px solid var(--chart-line) !important;
+  border-radius: 16px !important;
+  background: var(--chart-paper) !important;
+  box-shadow: 0 8px 24px rgba(126, 107, 75, .045) !important;
 }
 
-/* Elimina la vecchia fascia bianca poco leggibile */
-body :where(*):is([class*="family"], [id*="family"], [class*="holding"], [id*="holding"]) {
-  color: var(--text) !important;
-  background-color: transparent !important;
-  text-shadow: none !important;
+/* Il canvas non deve espandere il contenitore */
+#cf-chart canvas,
+canvas#cf-chart {
+  width: 100% !important;
+  height: 188px !important;
+  max-height: 188px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
 }
 
-/* Rimuove tutte le etichette di versione */
-body :where(*):is(
-  [class*="version"],
-  [id*="version"],
-  [class*="edition"],
-  [id*="edition"],
-  [aria-label*="Executive"],
-  [title*="Executive"]
-) {
-  display: none !important;
-}
-
-/* Card finanziarie individuate dai contenuti */
-body :where(*):has-text("Banca (Post-Auto)"),
-body :where(*):has-text("Banca della Marca"),
-body :where(*):has-text("Pool Cassa Agosto"),
-body :where(*):has-text("DSCR Ratio"),
-body :where(*):has-text("Saldo Fine Agosto"),
-body :where(*):has-text("Totale Accantonato"),
-body :where(*):has-text("Prezzo V80A") {
-  color: var(--text) !important;
-  background-color: var(--surface) !important;
-  background-image: none !important;
-  border-color: var(--line) !important;
-  box-shadow: 0 10px 30px rgba(126, 107, 75, .055) !important;
-}
-
-/* Fallback robusto: contenitori comuni delle metriche */
-.metric,
-.metrics,
-.metric-card,
-.kpi,
-.kpi-card,
-.summary-card,
-.stat,
-.stat-card,
-.balance-card,
-.account-card,
-.summary,
-.financial-card,
-.dashboard-card,
-.card,
-.panel,
-.widget,
-.tile {
-  color: var(--text) !important;
-  background: var(--surface) !important;
-  border: 1px solid var(--line) !important;
-  box-shadow: 0 10px 30px rgba(126, 107, 75, .055) !important;
-}
-
-.metric *, .metrics *, .metric-card *, .kpi *, .kpi-card *,
-.summary-card *, .stat *, .stat-card *, .balance-card *,
-.account-card *, .summary *, .financial-card *, .dashboard-card *,
-.card *, .panel *, .widget *, .tile * {
-  color: var(--text) !important;
-  background-color: transparent !important;
-}
-
-/* Evidenziazioni leggere per categorie */
-.metric:nth-child(1), .kpi:nth-child(1), .summary-card:nth-child(1), .stat-card:nth-child(1) { background: var(--sage-soft) !important; }
-.metric:nth-child(2), .kpi:nth-child(2), .summary-card:nth-child(2), .stat-card:nth-child(2) { background: var(--coral-soft) !important; }
-.metric:nth-child(3), .kpi:nth-child(3), .summary-card:nth-child(3), .stat-card:nth-child(3) { background: #f0f0f8 !important; }
-
-/* Grafico e relativo contenitore */
-canvas,
-canvas + *,
+/* Tutti gli altri contenitori grafici */
 .chart,
 .chart-container,
 .graph,
@@ -104,78 +45,71 @@ canvas + *,
 .cash-flow-chart-container,
 [data-chart],
 [data-chart-container] {
-  background: var(--surface) !important;
-  border-color: var(--line) !important;
-  color: var(--text) !important;
-  box-shadow: 0 10px 30px rgba(126, 107, 75, .055) !important;
+  min-height: 0 !important;
+  background: var(--chart-paper) !important;
+  border: 1px solid var(--chart-line) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 24px rgba(126, 107, 75, .045) !important;
 }
 
-/* Titoli di grafici e sezioni */
-.chart-title,
-.graph-title,
-.section-title,
-.card-title,
-.panel-title,
-h1, h2, h3, h4, h5, h6 {
-  color: var(--text) !important;
-  font-family: "DM Sans", Arial, sans-serif !important;
-  font-weight: 500 !important;
-}
-
-/* Numeri e valori: niente bianco su fondo chiaro */
-.amount, .value, .number, .price, .total, .balance, .ratio, .metric-value {
-  color: var(--text) !important;
-  font-weight: 500 !important;
-}
-
-.income, .positive, .credit { color: #659278 !important; }
-.expense, .negative, .debit { color: #c98579 !important; }
-
-/* Tabelle e righe di tutte le sezioni */
-table, thead, tbody, tr, th, td,
-.table, .data-table, .table-wrapper, .table-container {
-  background: var(--surface) !important;
-  color: var(--text) !important;
-  border-color: var(--line) !important;
-}
-
-thead, th { background: var(--surface-2) !important; color: var(--muted) !important; font-weight: 500 !important; }
-td { color: #747169 !important; font-weight: 300 !important; }
-
-/* Pulsanti e tab: colori coerenti */
-button, .button, .btn, a.button, [role="button"] {
-  background: #eee9df !important;
-  color: #77746d !important;
-  border-color: transparent !important;
+.chart canvas,
+.chart-container canvas,
+.graph canvas,
+.graph-container canvas,
+.cash-flow-chart canvas,
+.cash-flow-chart-container canvas,
+[data-chart] canvas,
+[data-chart-container] canvas {
+  max-height: 230px !important;
+  background: transparent !important;
+  border: 0 !important;
   box-shadow: none !important;
 }
 
-button:hover, .button:hover, .btn:hover, a.button:hover, [role="button"]:hover {
-  background: #e4ded2 !important;
-  color: #66635c !important;
+/* Se il grafico usa SVG */
+.chart svg,
+.chart-container svg,
+.graph svg,
+.graph-container svg,
+[data-chart] svg,
+[data-chart-container] svg {
+  max-height: 230px !important;
+  background: transparent !important;
 }
 
-#cf-import, .primary, .btn-primary, button.primary, [data-primary="true"] {
-  background: var(--sage) !important;
-  color: #fff !important;
+/* Testo e titoli dei grafici */
+.chart-title,
+.graph-title,
+.chart h2,
+.chart h3,
+.chart-container h2,
+.chart-container h3,
+.graph h2,
+.graph h3 {
+  margin: 0 0 10px !important;
+  color: #77746d !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: .01em;
 }
 
-/* Mantiene leggibile il titolo principale */
-#cashflow-controls::before {
-  content: "Jo & Eli Control Room" !important;
-  color: var(--text) !important;
-  font-family: "Playfair Display", Georgia, serif !important;
-  font-weight: 400 !important;
-}
-
-/* Override degli stili inline non importanti */
-[style*="background"], [style*="background-color"] {
-  background-color: var(--surface) !important;
-  background-image: none !important;
+/* Chart.js: palette sobria attraverso variabili accessibili al layout */
+.chart-legend,
+.chartjs-legend {
+  color: var(--chart-text) !important;
+  font-size: 11px !important;
 }
 
 @media (max-width: 700px) {
-  .metric, .metrics, .metric-card, .kpi, .kpi-card, .summary-card, .stat-card, .card, .panel, .widget, .tile {
-    width: 100%;
+  #cf-chart {
+    height: 190px !important;
+    max-height: 190px !important;
+    padding: 12px !important;
+  }
+
+  #cf-chart canvas,
+  canvas#cf-chart {
+    height: 164px !important;
+    max-height: 164px !important;
   }
 }
