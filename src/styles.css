@@ -8,8 +8,8 @@
   --surface: #fffdf8;
   --surface-2: #faf7ef;
   --text: #5b5a54;
-  --text-soft: #99968c;
-  --border: #e7e1d6;
+  --muted: #99968c;
+  --line: #e7e1d6;
   --sage: #83a995;
   --sage-soft: #e9f2eb;
   --coral: #d99a8e;
@@ -19,55 +19,77 @@
   --shadow: 0 10px 30px rgba(126, 107, 75, .055);
 }
 
-html, body, #app, #root, main {
+html, body {
+  min-width: 320px;
   min-height: 100%;
+  margin: 0 !important;
   background: var(--bg) !important;
   color: var(--text) !important;
 }
 
 body {
-  margin: 0 !important;
-  background: var(--bg) !important;
   font-weight: 400 !important;
+  overflow-x: hidden;
 }
 
 *, *::before, *::after {
-  border-color: var(--border) !important;
   text-shadow: none !important;
 }
 
-/* Rimuove esplicitamente ogni fondo nero */
-header, nav, aside, footer, section, main, article, div,
-button, input, select, table, thead, tbody, tr, th, td {
+button, input, select, textarea {
+  font-family: "DM Sans", Arial, sans-serif !important;
+  font-weight: 400 !important;
+}
+
+button { cursor: pointer; }
+
+/* Reset esplicito dei vecchi colori */
+body,
+#root,
+#app,
+main,
+.page,
+.app,
+.app-shell,
+.dashboard,
+.content,
+.content-area,
+main > *,
+header,
+nav,
+aside,
+footer,
+section,
+article,
+.panel,
+.card,
+.widget,
+.toolbar,
+.controls,
+.modal,
+.overlay,
+.chart,
+.chart-container,
+.table-container,
+.movement-panel,
+.budget-panel,
+.cash-flow-panel,
+.master-budget-panel,
+.amb-post,
+.amb-card {
+  background-color: var(--bg) !important;
+  background-image: none !important;
   color: var(--text) !important;
 }
 
-header, nav, aside, footer, section, main, article, div,
-table, thead, tbody, tr, th, td {
-  background-color: transparent !important;
-  background-image: none !important;
-}
-
-/* Il contenuto deve restare su superfici chiare */
-#cashflow-controls,
-#cashflow-controls > div:first-child,
-#cf-summary span,
-#cf-chart,
-table,
-thead,
-tbody,
-tbody tr,
-tbody td,
-thead tr,
-thead th {
-  background-color: var(--surface) !important;
-}
-
+/* Layout esistente: superficie calda e nessun fondo nero */
 #cashflow-controls {
   max-width: 1240px;
   margin: 0 auto !important;
-  padding: 46px 28px 0 !important;
+  padding: 42px 28px 0 !important;
+  border: 0 !important;
   background: transparent !important;
+  color: var(--text) !important;
   box-shadow: none !important;
 }
 
@@ -87,19 +109,102 @@ thead th {
   content: "A calm view of your everyday finances." !important;
   display: block;
   margin: 14px 0 32px;
-  color: var(--text-soft) !important;
+  color: var(--muted) !important;
   font-size: 15px;
   font-weight: 300 !important;
 }
 
+/* Nasconde l'etichetta richiesta */
+*:is(.version, .edition, .badge-version, .app-version, [class*="version"], [id*="version"]) {
+  display: none !important;
+}
+
+/* Navigazione: crema, testi salvia, niente blu/rosso/verde saturi */
+nav button,
+header button,
+aside button,
+button[data-section],
+button[data-page],
+.nav-item,
+.sidebar-item,
+.menu-item {
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  color: #77746d !important;
+  box-shadow: none !important;
+}
+
+nav button:hover,
+header button:hover,
+aside button:hover,
+button[data-section]:hover,
+button[data-page]:hover,
+.nav-item:hover,
+.sidebar-item:hover,
+.menu-item:hover,
+nav button.active,
+header button.active,
+aside button.active,
+.nav-item.active,
+.sidebar-item.active,
+.menu-item.active {
+  background: var(--sage-soft) !important;
+  color: #5f8e75 !important;
+  border-color: #d6e7da !important;
+}
+
+/* Bottoni azione */
+button {
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: #eee9df !important;
+  color: #77746d !important;
+  box-shadow: none !important;
+}
+
+button:hover {
+  background: #e4ded2 !important;
+  color: #66635c !important;
+}
+
+#cf-import,
+#cf-add,
+button[data-action="add"],
+button[data-action="save"],
+button.primary,
+button[class*="primary"] {
+  background: var(--sage) !important;
+  color: white !important;
+}
+
+#cf-import:hover,
+#cf-add:hover,
+button[data-action="add"]:hover,
+button[data-action="save"]:hover,
+button.primary:hover,
+button[class*="primary"]:hover {
+  background: #719984 !important;
+}
+
+/* Pulsanti nominati dall'utente */
+button[aria-label*="Backup"],
+button[title*="Backup"],
+button:where(:not(.delete-db-row)):has(+ *) {
+  color: #77746d !important;
+}
+
+/* Toolbar */
 #cashflow-controls > div:first-child {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px !important;
   padding: 8px;
-  border: 1px solid var(--border) !important;
+  border: 1px solid var(--line) !important;
   border-radius: 14px;
+  background: var(--surface) !important;
+  color: var(--text) !important;
   box-shadow: var(--shadow) !important;
 }
 
@@ -118,22 +223,11 @@ thead th {
   padding: 0 10px;
   border: 0 !important;
   background: transparent !important;
-  color: var(--text-soft) !important;
+  color: var(--muted) !important;
   font-weight: 300 !important;
 }
 
-#cf-reset, #cf-import {
-  min-height: 40px;
-  padding: 0 15px;
-  border: 0 !important;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 400 !important;
-}
-
-#cf-reset { background: #eee9df !important; color: #88847a !important; }
-#cf-import { background: var(--sage) !important; color: #fff !important; }
-
+/* Card riepilogo */
 #cf-summary {
   display: grid !important;
   grid-template-columns: 1.35fr 1fr 1fr 1fr;
@@ -144,11 +238,11 @@ thead th {
 #cf-summary span {
   min-height: 118px;
   padding: 20px;
-  border: 1px solid var(--border) !important;
+  border: 1px solid var(--line) !important;
   border-radius: 16px;
+  background: var(--surface) !important;
+  color: var(--muted) !important;
   box-shadow: var(--shadow) !important;
-  color: var(--text-soft) !important;
-  font-size: 13px;
   font-weight: 300 !important;
 }
 
@@ -160,44 +254,56 @@ thead th {
 #cf-summary b {
   display: block;
   margin-bottom: 18px;
-  color: var(--text-soft) !important;
+  color: var(--muted) !important;
   font-size: 10px;
   font-weight: 500 !important;
   letter-spacing: .1em;
   text-transform: uppercase;
 }
 
-#cf-summary span::first-line {
-  color: var(--text) !important;
-  font-size: 24px;
-  font-weight: 500 !important;
-}
-
+/* Tutti i grafici */
+canvas,
+.chart canvas,
+.chart-container canvas,
 #cf-chart {
   display: block;
-  width: 100% !important;
-  max-height: 290px;
-  margin-top: 18px;
-  padding: 20px;
-  border: 1px solid var(--border) !important;
-  border-radius: 16px;
+  max-width: 100%;
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow) !important;
+}
+
+#cf-chart { width: 100% !important; max-height: 290px; margin-top: 18px; padding: 20px; }
+
+/* Tutte le tabelle */
+table,
+.table,
+.table-container,
+.data-table,
+.data-grid {
+  border-color: var(--line) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
   box-shadow: var(--shadow) !important;
 }
 
 table {
   width: min(1184px, calc(100% - 56px));
   margin: 22px auto 60px;
-  border: 1px solid var(--border) !important;
-  border-radius: 16px;
   border-spacing: 0;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: var(--shadow) !important;
+}
+
+thead, thead tr, thead th {
+  background: var(--surface-2) !important;
+  color: #aaa69c !important;
 }
 
 thead th {
   padding: 15px 18px;
-  background: var(--surface-2) !important;
-  color: #aaa69c !important;
+  border-bottom: 1px solid var(--line) !important;
   font-size: 10px;
   font-weight: 500 !important;
   letter-spacing: .1em;
@@ -205,53 +311,52 @@ thead th {
   text-transform: uppercase;
 }
 
-tbody td {
-  padding: 17px 18px;
+tbody, tbody tr, tbody td {
   background: var(--surface) !important;
   color: #747169 !important;
-  font-size: 13px;
-  font-weight: 300 !important;
 }
 
+tbody td { padding: 17px 18px; border-bottom: 1px solid #f0ece4 !important; font-size: 13px; font-weight: 300 !important; }
 tbody tr:hover td { background: #fdfaf5 !important; }
 .amount.income { color: #659278 !important; }
 .amount.expense { color: #c98579 !important; }
 
-.badge { padding: 5px 9px; border-radius: 999px; font-size: 10px; font-weight: 500 !important; }
 .badge.income { background: var(--sage-soft) !important; color: #659278 !important; }
 .badge.expense { background: var(--coral-soft) !important; color: #c98579 !important; }
 
-.edit-db-row, .delete-db-row {
-  padding: 6px 9px;
-  border-radius: 7px;
-  font-size: 11px;
-  font-weight: 400 !important;
-}
-.edit-db-row { background: #eeeeF7 !important; color: #8585a5 !important; }
-.delete-db-row { background: transparent !important; color: #c98579 !important; }
-
-#db-movement-form {
-  width: min(430px, calc(100vw - 32px)) !important;
-  padding: 30px !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 20px !important;
+/* Riquadri elementi di movimento */
+.movement,
+.movement-item,
+.movement-card,
+.movement-panel,
+.cash-flow,
+.cash-flow-card,
+.cash-flow-panel,
+#movement,
+#movements,
+[data-section="cash-flow"],
+[data-section="movements"] {
   background: var(--surface) !important;
   color: var(--text) !important;
+  border-color: var(--line) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+/* Modali e overlay */
+.modal, .modal-content, .dialog, .drawer, .overlay-content, #db-movement-form {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--line) !important;
   box-shadow: 0 24px 70px rgba(126, 107, 75, .18) !important;
 }
 
-#db-movement-form h3 {
-  margin: 0 0 24px !important;
-  color: var(--text) !important;
-  font-family: "Playfair Display", Georgia, serif !important;
-  font-size: 27px;
-  font-weight: 400 !important;
-}
-
-#db-movement-form label { color: var(--text-soft) !important; font-weight: 500 !important; }
+#db-movement-form h3 { color: var(--text) !important; font-family: "Playfair Display", Georgia, serif !important; font-weight: 400 !important; }
+#db-movement-form label { color: var(--muted) !important; font-weight: 500 !important; }
 #db-movement-form input, #db-movement-form select { background: #fff !important; color: var(--text) !important; }
-#db-movement-form button[type="submit"] { background: var(--sage) !important; color: #fff !important; }
-#db-movement-form button[type="button"] { background: #eee9df !important; color: #77746d !important; }
+#db-movement-form button[type="submit"] { background: var(--sage) !important; color: white !important; }
+
+/* Nasconde esattamente la label richiesta */
+body :where(*):is([class*="version"], [id*="version"], [class*="edition"], [id*="edition"]) { display: none !important; }
 
 #supabase-status { border-radius: 9px !important; font-size: 12px !important; }
 
@@ -268,5 +373,4 @@ tbody tr:hover td { background: #fdfaf5 !important; }
   #cf-search, #cf-month, #cf-type, #cf-account, #cf-reset, #cf-import { width: 100%; }
   #cf-summary { grid-template-columns: 1fr 1fr; }
   #cf-summary span { min-height: 104px; padding: 15px; }
-  #cf-summary span::first-line { font-size: 18px; }
 }
