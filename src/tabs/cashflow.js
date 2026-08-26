@@ -4,6 +4,7 @@ import { money, escapeHtml, todayIso } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
 import { refreshKpis } from "../lib/kpis.js";
+import { barChart } from "../lib/charts.js";
 
 const TABLE = "cash_movements";
 let editingId = null;
@@ -78,10 +79,34 @@ export function render() {
   document.getElementById("cf-summary").innerHTML =
     `<span><b>Entrate:</b> ${money(income)}</span> <span><b>Uscite:</b> ${money(expense)}</span> <span><b>Saldo periodo:</b> ${money(income - expense)}</span> <span><b>Movimenti:</b> ${rows.length}</span>`;
 
+  renderChart();
+
   tbody.querySelectorAll("[data-delete]").forEach(b => b.addEventListener("click", () => onDelete(b.dataset.delete)));
   tbody.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => onEdit(b.dataset.edit)));
   mobile.querySelectorAll("[data-delete]").forEach(b => b.addEventListener("click", () => onDelete(b.dataset.delete)));
   mobile.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => onEdit(b.dataset.edit)));
+}
+
+function renderChart() {
+  const container = document.getElementById("cf-chart");
+  if (!container) return;
+  const byMonth = new Map();
+  getState().cashMovements.forEach(tx => {
+    const month = String(tx.movement_date || "").slice(0, 7);
+    if (!month) return;
+    if (!byMonth.has(month)) byMonth.set(month, { income: 0, expense: 0 });
+    const bucket = byMonth.get(month);
+    if (tx.movement_type === "ENTRATA") bucket.income += Number(tx.amount || 0);
+    else bucket.expense += Number(tx.amount || 0);
+  });
+  const months = [...byMonth.keys()].sort();
+  container.innerHTML = barChart({
+    labels: months,
+    series: [
+      { label: "Entrate", color: "var(--accent-green)", values: months.map(m => byMonth.get(m).income) },
+      { label: "Uscite", color: "var(--accent-red)", values: months.map(m => byMonth.get(m).expense) },
+    ],
+  });
 }
 
 function resetForm() {

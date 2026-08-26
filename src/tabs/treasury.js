@@ -1,10 +1,22 @@
 import { getState } from "../lib/store.js";
 import { quarterlyTreasury } from "../lib/finance.js";
 import { money } from "../lib/format.js";
+import { barChart } from "../lib/charts.js";
 
 export function render() {
   const { recurringIncome, fixedExpenses, deadlines } = getState();
   const quarters = quarterlyTreasury(recurringIncome, fixedExpenses, deadlines, 4);
+
+  const chartEl = document.getElementById("treasury-chart");
+  if (chartEl) {
+    chartEl.innerHTML = barChart({
+      labels: quarters.map(q => q.label),
+      series: [
+        { label: "Entrate", color: "var(--accent-green)", values: quarters.map(q => q.income) },
+        { label: "Uscite", color: "var(--accent-red)", values: quarters.map(q => q.expense) },
+      ],
+    });
+  }
 
   const tbody = document.getElementById("treasury-table-body");
   const mobile = document.getElementById("treasury-mobile");

@@ -4,6 +4,7 @@ import { money, escapeHtml, todayIso } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
 import { refreshKpis } from "../lib/kpis.js";
+import { findMatch } from "../lib/reconcile.js";
 
 const TABLE = "deadlines";
 let editingId = null;
@@ -16,7 +17,8 @@ function statusColor(status) {
 }
 
 export function render() {
-  const rows = [...getState().deadlines].sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+  const { deadlines, cashMovements } = getState();
+  const rows = [...deadlines].sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
   const tbody = document.getElementById("scad-table-body");
   const mobile = document.getElementById("scad-mobile");
   tbody.innerHTML = "";
@@ -26,10 +28,17 @@ export function render() {
 
   rows.forEach(d => {
     const color = statusColor(d.status);
+    const match = d.status !== "Completato" ? findMatch(d, cashMovements) : null;
+    const matchBadge = match
+      ? `<div class="match-hint">✓ Match in Cash Flow: ${escapeHtml(match.description)} (${escapeHtml(match.movement_date)})
+          <button class="btn btn-green" style="padding:2px 6px;font-size:0.6rem" data-reconcile="${d.id}">Segna Completato</button>
+        </div>`
+      : "";
+
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><strong>${escapeHtml(d.due_date)}</strong></td>
-      <td>${escapeHtml(d.title)}</td>
+      <td>${escapeHtml(d.title)}${matchBadge}</td>
       <td>${escapeHtml(d.category)}</td>
       <td class="amount text-amber" style="text-align:right">${money(d.amount)}</td>
       <td style="text-align:center"><span class="badge" style="background:${color}">${escapeHtml(d.status)}</span></td>
@@ -47,6 +56,7 @@ export function render() {
         <span class="m-card-amount text-amber">${money(d.amount)}</span>
       </div>
       <div style="font-size:0.75rem;color:var(--text-muted)">Data: <strong>${escapeHtml(d.due_date)}</strong> | Cat: ${escapeHtml(d.category)} | ${escapeHtml(d.subject || "")}</div>
+      ${matchBadge}
       <div class="m-card-details">
         <span class="badge" style="background:${color}">${escapeHtml(d.status)}</span>
         <div style="display:flex;gap:6px">
@@ -59,8 +69,22 @@ export function render() {
 
   tbody.querySelectorAll("[data-delete]").forEach(el => el.addEventListener("click", () => onDelete(el.dataset.delete)));
   tbody.querySelectorAll("[data-edit]").forEach(el => el.addEventListener("click", () => onEdit(el.dataset.edit)));
+  tbody.querySelectorAll("[data-reconcile]").forEach(el => el.addEventListener("click", () => onReconcile(el.dataset.reconcile)));
   mobile.querySelectorAll("[data-delete]").forEach(el => el.addEventListener("click", () => onDelete(el.dataset.delete)));
   mobile.querySelectorAll("[data-edit]").forEach(el => el.addEventListener("click", () => onEdit(el.dataset.edit)));
+  mobile.querySelectorAll("[data-reconcile]").forEach(el => el.addEventListener("click", () => onReconcile(el.dataset.reconcile)));
+}
+
+async function onReconcile(id) {
+  try {
+    await updateRow(TABLE, id, { status: "Completato" });
+    await loadAll();
+    render();
+    refreshKpis();
+    toast("Scadenza segnata come completata", "success");
+  } catch (err) {
+    toastError(err);
+  }
 }
 
 function resetForm() {

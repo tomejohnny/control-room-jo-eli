@@ -3,6 +3,7 @@ import { insertRow, updateRow } from "../lib/db.js";
 import { money, todayIso } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
+import { lineChart } from "../lib/charts.js";
 
 const TWIN_NAMES = { Ambra: "V80A - Ambra", Bianca: "V80A - Bianca" };
 let activePerson = "";
@@ -14,11 +15,20 @@ function findInvestment(name) {
 function twinStats(name) {
   const inv = findInvestment(name);
   if (!inv) return null;
-  const txs = getState().investmentTransactions.filter(t => t.investment_id === inv.id);
+  const txs = getState().investmentTransactions
+    .filter(t => t.investment_id === inv.id)
+    .sort((a, b) => new Date(a.transaction_date) - new Date(b.transaction_date));
   const units = txs.reduce((s, t) => s + Number(t.units || 0), 0);
   const invested = txs.reduce((s, t) => s + Number(t.amount || 0), 0);
   const currentValue = units * Number(inv.current_value || 0);
-  return { inv, units, invested, currentValue };
+
+  let cumulative = 0;
+  const points = txs.map(t => {
+    cumulative += Number(t.amount || 0);
+    return { x: t.transaction_date, y: cumulative };
+  });
+
+  return { inv, units, invested, currentValue, points };
 }
 
 export function render() {
@@ -49,7 +59,8 @@ export function render() {
       </div>
       <div class="m-card-details">
         <span>Profitto/Perdita: <strong style="color:${profitColor}">${money(profit)}</strong></span>
-      </div>`;
+      </div>
+      <div style="margin-top:8px">${lineChart({ points: stats.points, height: 140, refValue: stats.currentValue, refLabel: "Valore stimato oggi" })}</div>`;
     container.appendChild(card);
   });
 }

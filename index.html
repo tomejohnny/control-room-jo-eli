@@ -28,7 +28,7 @@
 
     <div id="app-shell" class="app-shell">
     <div class="container">
-        <header>
+        <header class="no-print">
             <h1>Family Holding Control Room</h1>
             <div class="header-actions">
                 <span id="header-user" class="header-user"></span>
@@ -36,7 +36,9 @@
             </div>
         </header>
 
-        <div class="nav-tabs">
+        <div id="alert-banner" class="alert-banner no-print"></div>
+
+        <div class="nav-tabs no-print">
             <button class="tab-btn active" data-view="cashflow">📊 Cash Flow</button>
             <button class="tab-btn" data-view="incomes">💶 Entrate Fisse</button>
             <button class="tab-btn" data-view="budget">📋 Master Budget</button>
@@ -46,16 +48,17 @@
             <button class="tab-btn" data-view="treasury">📈 Treasury</button>
             <button class="tab-btn" data-view="capex">💼 Capex &amp; PAC</button>
             <button class="tab-btn" data-view="risk">🛡️ Risk &amp; Burn</button>
+            <button class="tab-btn" data-view="report">📄 Report</button>
         </div>
 
-        <div class="actions-bar">
+        <div class="actions-bar no-print">
             <button class="btn btn-green" data-open-modal="txModal">+ Movimento</button>
             <button class="btn btn-amber" data-open-modal="budgetModal">+ Spesa</button>
             <button class="btn" data-open-modal="incomeModal">+ Entrata Fissa</button>
             <button class="btn" data-open-modal="scadModal">+ Scadenza</button>
         </div>
 
-        <div class="grid-kpi">
+        <div class="grid-kpi no-print">
             <div class="kpi-card">
                 <div class="kpi-title">Saldo Cassa</div>
                 <div class="kpi-value" id="kpi-balance">€ 0,00</div>
@@ -97,6 +100,7 @@
                     <button class="btn btn-ghost" id="cf-reset">Azzera filtri</button>
                 </div>
                 <div id="cf-summary" style="font-size:0.75rem;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px"></div>
+                <div id="cf-chart" style="margin-bottom:15px"></div>
                 <table class="desktop-table">
                     <thead>
                         <tr><th>Data</th><th>Descrizione</th><th>Soggetto</th><th>Tipo</th><th style="text-align:right">Importo</th><th style="text-align:center">Azioni</th></tr>
@@ -200,6 +204,7 @@
             <div class="card">
                 <h2>📈 Treasury &amp; Working Capital (12 Mesi)</h2>
                 <p class="hint">Proiezione trimestrale rolling da entrate fisse, spese fisse e scadenze.</p>
+                <div id="treasury-chart" style="margin-bottom:15px"></div>
                 <table class="desktop-table">
                     <thead><tr><th>Trimestre</th><th>Entrate</th><th>Uscite</th><th style="text-align:right">Netto</th></tr></thead>
                     <tbody id="treasury-table-body"></tbody>
@@ -230,11 +235,31 @@
                 <div id="risk-container"></div>
             </div>
         </div>
+
+        <!-- REPORT -->
+        <div id="view-report" class="view-section">
+            <div class="card">
+                <h2 class="no-print">
+                    <span>📄 Report Mensile / Trimestrale</span>
+                </h2>
+                <div class="flex-row no-print" style="margin-bottom:12px">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label for="report-month">Mese di riferimento</label>
+                        <input type="month" id="report-month">
+                    </div>
+                    <div style="display:flex;align-items:flex-end;gap:8px">
+                        <button class="btn btn-green" id="report-print">Stampa / Salva PDF</button>
+                        <button class="btn btn-ghost" id="report-csv">Esporta CSV</button>
+                    </div>
+                </div>
+                <div id="report-content"></div>
+            </div>
+        </div>
     </div>
     </div>
 
     <!-- MODAL MOVIMENTO -->
-    <div id="txModal" class="modal-overlay">
+    <div id="txModal" class="modal-overlay no-print">
         <div class="modal-content">
             <h3>Movimento Cassa</h3>
             <form id="tx-form">
@@ -255,7 +280,7 @@
     </div>
 
     <!-- MODAL BUDGET -->
-    <div id="budgetModal" class="modal-overlay">
+    <div id="budgetModal" class="modal-overlay no-print">
         <div class="modal-content">
             <h3>Voce Master Budget</h3>
             <form id="budget-form">
@@ -281,7 +306,7 @@
     </div>
 
     <!-- MODAL ENTRATA FISSA -->
-    <div id="incomeModal" class="modal-overlay">
+    <div id="incomeModal" class="modal-overlay no-print">
         <div class="modal-content">
             <h3>Entrata Fissa Mensile</h3>
             <form id="income-form">
@@ -301,7 +326,7 @@
     </div>
 
     <!-- MODAL SCADENZA -->
-    <div id="scadModal" class="modal-overlay">
+    <div id="scadModal" class="modal-overlay no-print">
         <div class="modal-content">
             <h3>Scadenza</h3>
             <form id="scad-form">
@@ -325,7 +350,7 @@
     </div>
 
     <!-- MODAL VERSAMENTO GEMELLE -->
-    <div id="gemModal" class="modal-overlay">
+    <div id="gemModal" class="modal-overlay no-print">
         <div class="modal-content">
             <h3 id="gemTitle">Versamento</h3>
             <form id="gem-form">
@@ -339,7 +364,7 @@
     </div>
 
     <!-- MODAL CAPEX -->
-    <div id="capexModal" class="modal-overlay">
+    <div id="capexModal" class="modal-overlay no-print">
         <div class="modal-content">
             <h3>Investimento Capex/PAC</h3>
             <form id="capex-form">
