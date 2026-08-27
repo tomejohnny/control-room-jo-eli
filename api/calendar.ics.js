@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     .order("due_date", { ascending: true });
 
   if (error) {
-    res.status(500).send("Errore nel recupero delle scadenze.");
+    res.status(500).send("Errore nel recupero delle scadenze: " + error.message);
     return;
   }
 
