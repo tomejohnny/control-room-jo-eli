@@ -149,7 +149,46 @@ async function onSubmit(event) {
   }
 }
 
+const ICAL_TOKEN_KEY = "control_room_ical_token";
+
+function readStoredToken() {
+  try {
+    return localStorage.getItem(ICAL_TOKEN_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+function storeToken(token) {
+  try {
+    localStorage.setItem(ICAL_TOKEN_KEY, token);
+  } catch {
+    // storage non disponibile (es. private browsing): il token resta solo in memoria per questa sessione
+  }
+}
+
+function initCalendarSync() {
+  const tokenInput = document.getElementById("ical-token");
+  tokenInput.value = readStoredToken();
+  tokenInput.addEventListener("input", () => storeToken(tokenInput.value.trim()));
+
+  document.getElementById("ical-copy").addEventListener("click", async () => {
+    const token = tokenInput.value.trim();
+    if (!token) return toast("Incolla prima il token del feed.", "error");
+    storeToken(token);
+    const url = `${window.location.origin}/api/calendar.ics?token=${encodeURIComponent(token)}`;
+    document.getElementById("ical-url-display").textContent = url;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("Link copiato negli appunti", "success");
+    } catch {
+      toast("Link generato qui sotto — copialo manualmente.");
+    }
+  });
+}
+
 export function initScadenziario() {
   document.getElementById("scad-form").addEventListener("submit", onSubmit);
   document.querySelector('[data-open-modal="scadModal"]').addEventListener("click", resetForm);
+  initCalendarSync();
 }
