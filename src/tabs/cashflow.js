@@ -6,6 +6,7 @@ import { toast, toastError } from "../lib/ui.js";
 import { notifyDataChanged } from "../lib/bus.js";
 import { confirmDialog } from "../lib/confirm.js";
 import { barChart } from "../lib/charts.js";
+import { planMonthlyMovements } from "../lib/generate.js";
 
 const TABLE = "cash_movements";
 let editingId = null;
@@ -45,15 +46,22 @@ export function render() {
   rows.forEach(tx => {
     const { sign, colorClass } = rowTemplate(tx);
     if (tx.movement_type === "ENTRATA") income += Number(tx.amount || 0); else expense += Number(tx.amount || 0);
+    const isPlanned = tx.status === "Previsto";
+    const typeBadge = isPlanned
+      ? `<span class="badge" style="background:var(--accent-amber)">Da confermare</span>`
+      : `<span class="badge" style="background:${tx.movement_type === "ENTRATA" ? "var(--accent-green)" : "var(--accent-red)"}">${escapeHtml(tx.movement_type)}</span>`;
+    const confirmBtn = isPlanned ? `<button class="btn btn-green" style="padding:3px 6px;font-size:0.6rem" data-confirm="${tx.id}">Conferma</button>` : "";
+    const confirmBtnMobile = isPlanned ? `<button class="btn btn-green" style="padding:3px 8px;font-size:0.65rem" data-confirm="${tx.id}">Conferma</button>` : "";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${escapeHtml(tx.movement_date)}</td>
       <td><strong>${escapeHtml(tx.description)}</strong>${tx.account ? `<div style="font-size:0.65rem;color:var(--text-muted)">${escapeHtml(tx.account)}</div>` : ""}</td>
       <td>${escapeHtml(tx.subject)}</td>
-      <td><span class="badge" style="background:${tx.movement_type === "ENTRATA" ? "var(--accent-green)" : "var(--accent-red)"}">${escapeHtml(tx.movement_type)}</span></td>
+      <td>${typeBadge}</td>
       <td class="amount ${colorClass}" style="text-align:right">${sign}${money(tx.amount)}</td>
       <td style="text-align:center">
+        ${confirmBtn}
         <button class="btn btn-ghost" style="padding:3px 6px;font-size:0.6rem" data-edit="${tx.id}">Modifica</button>
         <button class="btn btn-red" style="padding:3px 6px;font-size:0.6rem" data-delete="${tx.id}">Elimina</button>
       </td>`;
@@ -69,7 +77,8 @@ export function render() {
       <div class="m-card-details">
         <span>${escapeHtml(tx.movement_date)} - <strong>${escapeHtml(tx.subject)}</strong></span>
         <div style="display:flex;gap:6px;align-items:center">
-          <span class="badge" style="background:${tx.movement_type === "ENTRATA" ? "var(--accent-green)" : "var(--accent-red)"}">${escapeHtml(tx.movement_type)}</span>
+          ${typeBadge}
+          ${confirmBtnMobile}
           <button class="btn btn-ghost" style="padding:3px 8px;font-size:0.65rem" data-edit="${tx.id}">Modifica</button>
           <button class="btn btn-red" style="padding:3px 8px;font-size:0.65rem" data-delete="${tx.id}">Elimina</button>
         </div>
@@ -81,11 +90,32 @@ export function render() {
     `<span><b>Entrate:</b> ${money(income)}</span> <span><b>Uscite:</b> ${money(expense)}</span> <span><b>Saldo periodo:</b> ${money(income - expense)}</span> <span><b>Movimenti:</b> ${rows.length}</span>`;
 
   renderChart();
+  renderCategoryOptions();
 
   tbody.querySelectorAll("[data-delete]").forEach(b => b.addEventListener("click", () => onDelete(b.dataset.delete)));
   tbody.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => onEdit(b.dataset.edit)));
+  tbody.querySelectorAll("[data-confirm]").forEach(b => b.addEventListener("click", () => onConfirmPlanned(b.dataset.confirm)));
   mobile.querySelectorAll("[data-delete]").forEach(b => b.addEventListener("click", () => onDelete(b.dataset.delete)));
   mobile.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => onEdit(b.dataset.edit)));
+  mobile.querySelectorAll("[data-confirm]").forEach(b => b.addEventListener("click", () => onConfirmPlanned(b.dataset.confirm)));
+}
+
+function renderCategoryOptions() {
+  const datalist = document.getElementById("category-options");
+  if (!datalist) return;
+  const categories = [...new Set(getState().fixedExpenses.map(f => f.category).filter(Boolean))].sort();
+  datalist.innerHTML = categories.map(c => `<option value="${escapeHtml(c)}"></option>`).join("");
+}
+
+async function onConfirmPlanned(id) {
+  try {
+    await updateRow(TABLE, id, { status: "Registrato" });
+    await loadAll();
+    notifyDataChanged();
+    toast("Movimento confermato", "success");
+  } catch (err) {
+    toastError(err);
+  }
 }
 
 function renderChart() {
@@ -125,6 +155,7 @@ function onEdit(id) {
   document.getElementById("m-person").value = tx.subject;
   document.getElementById("m-type").value = tx.movement_type;
   document.getElementById("m-account").value = tx.account || "";
+  document.getElementById("m-category").value = tx.category || "";
   document.getElementById("m-amount").value = tx.amount;
   openModal("txModal");
 }
@@ -149,6 +180,7 @@ async function onSubmit(event) {
     subject: document.getElementById("m-person").value,
     movement_type: document.getElementById("m-type").value,
     account: document.getElementById("m-account").value.trim() || null,
+    category: document.getElementById("m-category").value.trim() || null,
     amount: Number(document.getElementById("m-amount").value),
     status: "Registrato",
   };
@@ -208,6 +240,22 @@ async function onCsvImport(event) {
   }
 }
 
+async function onGenerate() {
+  const month = todayIso().slice(0, 7);
+  const { fixedExpenses, recurringIncome, cashMovements } = getState();
+  const plans = planMonthlyMovements(fixedExpenses, recurringIncome, cashMovements, month);
+  if (!plans.length) return toast("Nessun nuovo movimento da generare per questo mese.");
+  if (!(await confirmDialog(`Generare ${plans.length} movimenti previsti per ${month}? Andranno confermati singolarmente prima di contare nei saldi.`))) return;
+  try {
+    await insertRows(TABLE, plans);
+    await loadAll();
+    notifyDataChanged();
+    toast(`${plans.length} movimenti generati (da confermare)`, "success");
+  } catch (err) {
+    toastError(err);
+  }
+}
+
 export function initCashflow() {
   document.getElementById("tx-form").addEventListener("submit", onSubmit);
   document.querySelector('[data-open-modal="txModal"]').addEventListener("click", resetForm);
@@ -218,4 +266,5 @@ export function initCashflow() {
   });
   document.getElementById("cf-import").addEventListener("click", () => document.getElementById("cf-file").click());
   document.getElementById("cf-file").addEventListener("change", onCsvImport);
+  document.getElementById("cf-generate").addEventListener("click", onGenerate);
 }

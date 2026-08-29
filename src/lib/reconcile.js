@@ -20,6 +20,7 @@ export function findMatch(deadline, cashMovements) {
 
   return cashMovements.find(m => {
     if (m.movement_type !== "USCITA") return false;
+    if (m.status === "Previsto") return false;
     if (Math.abs(Number(m.amount || 0) - amount) > 0.01) return false;
     if (!m.movement_date || daysBetween(m.movement_date, deadline.due_date) > 15) return false;
     const moveText = normalize(m.description);

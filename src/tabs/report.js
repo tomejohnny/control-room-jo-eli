@@ -14,6 +14,27 @@ function inMonth(dateStr, monthStr) {
   return String(dateStr || "").startsWith(monthStr);
 }
 
+function budgetVsSpesoRows(fixedExpenses, monthMovements) {
+  const budgetByCategory = new Map();
+  fixedExpenses.filter(f => f.active !== false).forEach(f => {
+    const cat = f.category || "Senza categoria";
+    budgetByCategory.set(cat, (budgetByCategory.get(cat) || 0) + Number(f.amount || 0));
+  });
+  const actualByCategory = new Map();
+  monthMovements
+    .filter(m => m.movement_type === "USCITA" && m.status !== "Previsto")
+    .forEach(m => {
+      const cat = m.category || "Senza categoria";
+      actualByCategory.set(cat, (actualByCategory.get(cat) || 0) + Number(m.amount || 0));
+    });
+  const categories = new Set([...budgetByCategory.keys(), ...actualByCategory.keys()]);
+  return [...categories].sort().map(category => ({
+    category,
+    budget: budgetByCategory.get(category) || 0,
+    actual: actualByCategory.get(category) || 0,
+  }));
+}
+
 export function render() {
   const month = selectedMonth();
   const { cashMovements, fixedExpenses, recurringIncome, deadlines } = getState();
@@ -33,6 +54,7 @@ export function render() {
   const months = liquidityMonths(cashMovements, fixedExpenses);
   const budgetTotal = totalMonthlyFixedExpenses(fixedExpenses);
   const incomeTotal = totalMonthlyIncome(recurringIncome);
+  const budgetRows = budgetVsSpesoRows(fixedExpenses, monthMovements);
 
   document.getElementById("report-content").innerHTML = `
     <h3>Situazione Attuale (oggi)</h3>
@@ -56,6 +78,18 @@ export function render() {
       <tr><td>Totale entrate fisse mensili attive</td><td class="amount text-green" style="text-align:right">${money(incomeTotal)}</td></tr>
       <tr><td>Totale spese fisse mensili attive</td><td class="amount text-red" style="text-align:right">${money(budgetTotal)}</td></tr>
     </table>
+
+    <h3>Budget vs Speso per Categoria — ${escapeHtml(month)}</h3>
+    ${budgetRows.length ? `
+      <table class="desktop-table">
+        <thead><tr><th>Categoria</th><th style="text-align:right">Budget</th><th style="text-align:right">Speso</th><th style="text-align:right">Differenza</th></tr></thead>
+        <tbody>${budgetRows.map(r => {
+          const diff = r.budget - r.actual;
+          return `<tr><td>${escapeHtml(r.category)}</td><td class="amount" style="text-align:right">${money(r.budget)}</td><td class="amount" style="text-align:right">${money(r.actual)}</td><td class="amount ${diff >= 0 ? "text-green" : "text-red"}" style="text-align:right">${money(diff)}</td></tr>`;
+        }).join("")}</tbody>
+      </table>
+      <p class="hint">"Speso" conta solo i movimenti confermati con categoria assegnata (menu Movimento → Categoria). I movimenti "Da confermare" non sono inclusi finché non li confermi.</p>
+      ` : `<p class="hint">Nessun budget o movimento categorizzato per questo mese.</p>`}
 
     <h3>Scadenze nel Mese</h3>
     ${monthDeadlines.length ? `
@@ -86,15 +120,33 @@ function monthCsv(month) {
 
 function onExportCsv() {
   const month = selectedMonth();
-  const blob = new Blob([monthCsv(month)], { type: "text/csv;charset=utf-8" });
+  downloadFile(monthCsv(month), `cash-flow-${month}.csv`, "text/csv;charset=utf-8");
+}
+
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `cash-flow-${month}.csv`;
+  anchor.download = filename;
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
   URL.revokeObjectURL(url);
+}
+
+function onExportBackup() {
+  const state = getState();
+  const backup = {
+    exported_at: new Date().toISOString(),
+    cash_movements: state.cashMovements,
+    fixed_expenses: state.fixedExpenses,
+    recurring_income: state.recurringIncome,
+    deadlines: state.deadlines,
+    investments: state.investments,
+    investment_transactions: state.investmentTransactions,
+  };
+  downloadFile(JSON.stringify(backup, null, 2), `family-control-room-backup-${todayIso()}.json`, "application/json;charset=utf-8");
 }
 
 export function initReport() {
@@ -103,4 +155,5 @@ export function initReport() {
   monthInput.addEventListener("change", render);
   document.getElementById("report-print").addEventListener("click", () => window.print());
   document.getElementById("report-csv").addEventListener("click", onExportCsv);
+  document.getElementById("report-backup").addEventListener("click", onExportBackup);
 }

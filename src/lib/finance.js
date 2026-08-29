@@ -3,11 +3,16 @@
 // il filtro "contiene 'debito'" o "contiene 'fisco'" e' un'euristica sul dato
 // reale attuale, non una regola rigida - va aggiustata se cambia la nomenclatura.
 
+// I movimenti generati automaticamente (status "Previsto", vedi generate.js)
+// non contano nel saldo finche' l'utente non li conferma - altrimenti una
+// bozza non ancora rivista altererebbe Saldo Cassa/Margine/DSCR da sola.
 export function bankBalance(cashMovements) {
-  return cashMovements.reduce((sum, m) => {
-    const amount = Number(m.amount || 0);
-    return sum + (m.movement_type === "ENTRATA" ? amount : -amount);
-  }, 0);
+  return cashMovements
+    .filter(m => m.status !== "Previsto")
+    .reduce((sum, m) => {
+      const amount = Number(m.amount || 0);
+      return sum + (m.movement_type === "ENTRATA" ? amount : -amount);
+    }, 0);
 }
 
 export function monthEndMargin(cashMovements, deadlines, ref = new Date()) {
