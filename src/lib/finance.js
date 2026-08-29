@@ -3,11 +3,18 @@
 // il filtro "contiene 'debito'" o "contiene 'fisco'" e' un'euristica sul dato
 // reale attuale, non una regola rigida - va aggiustata se cambia la nomenclatura.
 
+import { investmentStats } from "./investments.js";
+
+// I movimenti generati automaticamente (status "Previsto", vedi generate.js)
+// non contano nel saldo finche' l'utente non li conferma - altrimenti una
+// bozza non ancora rivista altererebbe Saldo Cassa/Margine/DSCR da sola.
 export function bankBalance(cashMovements) {
-  return cashMovements.reduce((sum, m) => {
-    const amount = Number(m.amount || 0);
-    return sum + (m.movement_type === "ENTRATA" ? amount : -amount);
-  }, 0);
+  return cashMovements
+    .filter(m => m.status !== "Previsto")
+    .reduce((sum, m) => {
+      const amount = Number(m.amount || 0);
+      return sum + (m.movement_type === "ENTRATA" ? amount : -amount);
+    }, 0);
 }
 
 export function monthEndMargin(cashMovements, deadlines, ref = new Date()) {
@@ -38,6 +45,26 @@ export function dscr(recurringIncome, fixedExpenses) {
     .reduce((sum, f) => sum + Number(f.amount || 0), 0);
   if (debtService <= 0) return null;
   return totalMonthlyIncome(recurringIncome) / debtService;
+}
+
+// Patrimonio Netto = liquidita' + valore attuale investimenti - capitale
+// residuo dei debiti (fixed_expenses.remaining_balance, aggiornato a mano
+// occasionalmente da chi gestisce l'app - vedi supabase/add_remaining_balance.sql).
+// Senza quel campo compilato il debito corrispondente semplicemente non
+// viene sottratto: e' un patrimonio netto "per quanto se ne sa", non un
+// numero fasullo per le voci non aggiornate.
+export function netWorth(cashMovements, fixedExpenses, investments, investmentTransactions) {
+  const liquidity = bankBalance(cashMovements);
+  const investmentsValue = investments.reduce((sum, inv) => sum + investmentStats(inv, investmentTransactions).currentValue, 0);
+  const debt = fixedExpenses.reduce((sum, f) => sum + Number(f.remaining_balance || 0), 0);
+  return liquidity + investmentsValue - debt;
+}
+
+// Quota di entrate mensili non consumata dalle spese fisse mensili.
+export function savingsRate(recurringIncome, fixedExpenses) {
+  const income = totalMonthlyIncome(recurringIncome);
+  if (income <= 0) return null;
+  return 1 - totalMonthlyFixedExpenses(fixedExpenses) / income;
 }
 
 export function quarterlyTreasury(recurringIncome, fixedExpenses, deadlines, quarters = 4, ref = new Date()) {
