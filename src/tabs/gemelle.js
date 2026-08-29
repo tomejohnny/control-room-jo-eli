@@ -3,6 +3,7 @@ import { insertRow, updateRow } from "../lib/db.js";
 import { money, todayIso } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
+import { notifyDataChanged } from "../lib/bus.js";
 import { lineChart } from "../lib/charts.js";
 import { fetchLivePrice } from "../lib/marketprice.js";
 import { investmentStats } from "../lib/investments.js";
@@ -61,7 +62,7 @@ async function fetchLiveMarketPrice() {
       .map(inv => updateRow("investments", inv.id, { current_value: price, last_update: now }));
     await Promise.all(updates);
     await loadAll();
-    render();
+    notifyDataChanged();
     toast("Prezzo V80A aggiornato: " + money(price), "success");
   } catch (err) {
     toastError(err);
@@ -81,7 +82,7 @@ async function updatePriceManually() {
       .map(inv => updateRow("investments", inv.id, { current_value: price, last_update: now }));
     await Promise.all(updates);
     await loadAll();
-    render();
+    notifyDataChanged();
     toast("Prezzo aggiornato", "success");
   } catch (err) {
     toastError(err);
@@ -112,7 +113,7 @@ async function onGemSubmit(event) {
     });
     closeModal("gemModal");
     await loadAll();
-    render();
+    notifyDataChanged();
     toast("Versamento registrato", "success");
   } catch (err) {
     toastError(err);

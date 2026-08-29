@@ -3,7 +3,8 @@ import { insertRow, updateRow, deleteRow } from "../lib/db.js";
 import { money, escapeHtml, todayIso } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
-import { refreshKpis } from "../lib/kpis.js";
+import { notifyDataChanged } from "../lib/bus.js";
+import { confirmDialog } from "../lib/confirm.js";
 import { findMatch } from "../lib/reconcile.js";
 
 const TABLE = "deadlines";
@@ -79,8 +80,7 @@ async function onReconcile(id) {
   try {
     await updateRow(TABLE, id, { status: "Completato" });
     await loadAll();
-    render();
-    refreshKpis();
+    notifyDataChanged();
     toast("Scadenza segnata come completata", "success");
   } catch (err) {
     toastError(err);
@@ -108,12 +108,11 @@ function onEdit(id) {
 }
 
 async function onDelete(id) {
-  if (!confirm("Eliminare questa scadenza?")) return;
+  if (!(await confirmDialog("Eliminare questa scadenza?"))) return;
   try {
     await deleteRow(TABLE, id);
     await loadAll();
-    render();
-    refreshKpis();
+    notifyDataChanged();
     toast("Scadenza eliminata");
   } catch (err) {
     toastError(err);
@@ -141,8 +140,7 @@ async function onSubmit(event) {
     closeModal("scadModal");
     resetForm();
     await loadAll();
-    render();
-    refreshKpis();
+    notifyDataChanged();
     toast("Scadenza salvata", "success");
   } catch (err) {
     toastError(err);

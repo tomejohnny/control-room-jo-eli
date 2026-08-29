@@ -27,59 +27,74 @@
     </div>
 
     <div id="app-shell" class="app-shell">
-    <div class="container">
-        <header class="no-print">
-            <h1>Family Holding Control Room</h1>
-            <div class="header-actions">
-                <span id="header-user" class="header-user"></span>
-                <button id="logout-btn" class="btn btn-ghost">Esci</button>
+        <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-name">Family Holding</div>
+                <div class="brand-sub">Control Room di Jo &amp; Eli</div>
             </div>
-        </header>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-view="cashflow"><span class="icon">📊</span> Cash Flow</button>
+                <button class="nav-btn" data-view="incomes"><span class="icon">💶</span> Entrate Fisse</button>
+                <button class="nav-btn" data-view="budget"><span class="icon">📋</span> Master Budget</button>
+                <button class="nav-btn" data-view="gemelle"><span class="icon">🌱</span> Ambra &amp; Bianca</button>
+                <button class="nav-btn" data-view="scadenziario"><span class="icon">🗓️</span> Scadenziario</button>
+                <button class="nav-btn" data-view="fisco"><span class="icon">🏛️</span> Fisco (27%)</button>
+                <button class="nav-btn" data-view="treasury"><span class="icon">📈</span> Treasury</button>
+                <button class="nav-btn" data-view="capex"><span class="icon">💼</span> Capex &amp; PAC</button>
+                <button class="nav-btn" data-view="risk"><span class="icon">🛡️</span> Risk &amp; Burn</button>
+                <button class="nav-btn" data-view="report"><span class="icon">📄</span> Report</button>
+            </nav>
+            <div class="sidebar-footer">
+                <div id="header-user" class="header-user"></div>
+                <button id="logout-btn" class="btn btn-ghost btn-sm">Esci</button>
+            </div>
+        </aside>
 
-        <div id="alert-banner" class="alert-banner no-print"></div>
+        <div class="main-area">
+            <header class="topbar no-print">
+                <div class="topbar-row">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Apri menu">☰</button>
+                        <div>
+                            <h1 id="page-title">Cash Flow</h1>
+                            <div class="subtitle" id="page-subtitle">Movimenti di cassa consolidati</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-kpi">
+                    <div class="kpi-card">
+                        <div class="kpi-title">Saldo Cassa</div>
+                        <div class="kpi-value" id="kpi-balance">€ 0,00</div>
+                        <div class="kpi-sub">Somma movimenti registrati</div>
+                    </div>
+                    <div class="kpi-card" id="kpi-card-margin">
+                        <div class="kpi-title">Margine Fine Mese</div>
+                        <div class="kpi-value" id="kpi-margin">€ 0,00</div>
+                        <div class="kpi-sub">Saldo meno scadenze del mese</div>
+                    </div>
+                    <div class="kpi-card amber">
+                        <div class="kpi-title">DSCR Ratio</div>
+                        <div class="kpi-value" id="kpi-dscr">n/d</div>
+                        <div class="kpi-sub">Copertura debiti (&gt;1.0)</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Liquidità</div>
+                        <div class="kpi-value" id="kpi-liquidity">n/d</div>
+                        <div class="kpi-sub">Mesi di riserva</div>
+                    </div>
+                </div>
+            </header>
 
-        <div class="nav-tabs no-print">
-            <button class="tab-btn active" data-view="cashflow">📊 Cash Flow</button>
-            <button class="tab-btn" data-view="incomes">💶 Entrate Fisse</button>
-            <button class="tab-btn" data-view="budget">📋 Master Budget</button>
-            <button class="tab-btn" data-view="gemelle">🌱 Ambra &amp; Bianca</button>
-            <button class="tab-btn" data-view="scadenziario">🗓️ Scadenziario</button>
-            <button class="tab-btn" data-view="fisco">🏛️ Fisco (27%)</button>
-            <button class="tab-btn" data-view="treasury">📈 Treasury</button>
-            <button class="tab-btn" data-view="capex">💼 Capex &amp; PAC</button>
-            <button class="tab-btn" data-view="risk">🛡️ Risk &amp; Burn</button>
-            <button class="tab-btn" data-view="report">📄 Report</button>
-        </div>
+            <main class="content">
+                <div id="alert-banner" class="alert-banner no-print"></div>
 
-        <div class="actions-bar no-print">
-            <button class="btn btn-green" data-open-modal="txModal">+ Movimento</button>
-            <button class="btn btn-amber" data-open-modal="budgetModal">+ Spesa</button>
-            <button class="btn" data-open-modal="incomeModal">+ Entrata Fissa</button>
-            <button class="btn" data-open-modal="scadModal">+ Scadenza</button>
-        </div>
-
-        <div class="grid-kpi no-print">
-            <div class="kpi-card">
-                <div class="kpi-title">Saldo Cassa</div>
-                <div class="kpi-value" id="kpi-balance">€ 0,00</div>
-                <div class="kpi-sub">Somma movimenti registrati</div>
-            </div>
-            <div class="kpi-card" id="kpi-card-margin">
-                <div class="kpi-title">Margine Fine Mese</div>
-                <div class="kpi-value" id="kpi-margin">€ 0,00</div>
-                <div class="kpi-sub">Saldo meno scadenze del mese</div>
-            </div>
-            <div class="kpi-card amber">
-                <div class="kpi-title">DSCR Ratio</div>
-                <div class="kpi-value" id="kpi-dscr">n/d</div>
-                <div class="kpi-sub">Copertura debiti (&gt;1.0)</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-title">Liquidità</div>
-                <div class="kpi-value" id="kpi-liquidity">n/d</div>
-                <div class="kpi-sub">Mesi di riserva</div>
-            </div>
-        </div>
+                <div class="actions-bar no-print">
+                    <button class="btn btn-green" data-open-modal="txModal">+ Movimento</button>
+                    <button class="btn btn-amber" data-open-modal="budgetModal">+ Spesa</button>
+                    <button class="btn" data-open-modal="incomeModal">+ Entrata Fissa</button>
+                    <button class="btn" data-open-modal="scadModal">+ Scadenza</button>
+                </div>
 
         <!-- CASH FLOW -->
         <div id="view-cashflow" class="view-section active">
@@ -262,7 +277,8 @@
                 <div id="report-content"></div>
             </div>
         </div>
-    </div>
+            </main>
+        </div>
     </div>
 
     <!-- MODAL MOVIMENTO -->
@@ -402,6 +418,18 @@
                     <button type="submit" class="btn btn-green">Registra Versamento</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL CONFERMA -->
+    <div id="confirmModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3 id="confirm-title">Conferma</h3>
+            <p id="confirm-message" style="font-size:0.85rem;color:var(--text-muted)"></p>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+                <button type="button" class="btn btn-ghost" id="confirm-cancel">Annulla</button>
+                <button type="button" class="btn btn-red" id="confirm-ok">Conferma</button>
+            </div>
         </div>
     </div>
 

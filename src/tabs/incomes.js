@@ -3,7 +3,8 @@ import { insertRow, updateRow, deleteRow } from "../lib/db.js";
 import { money, escapeHtml } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
-import { refreshKpis } from "../lib/kpis.js";
+import { notifyDataChanged } from "../lib/bus.js";
+import { confirmDialog } from "../lib/confirm.js";
 
 const TABLE = "recurring_income";
 let editingId = null;
@@ -86,12 +87,11 @@ function onEdit(id) {
 }
 
 async function onDelete(id) {
-  if (!confirm("Eliminare questa entrata fissa?")) return;
+  if (!(await confirmDialog("Eliminare questa entrata fissa?"))) return;
   try {
     await deleteRow(TABLE, id);
     await loadAll();
-    render();
-    refreshKpis();
+    notifyDataChanged();
     toast("Entrata eliminata");
   } catch (err) {
     toastError(err);
@@ -117,8 +117,7 @@ async function onSubmit(event) {
     closeModal("incomeModal");
     resetForm();
     await loadAll();
-    render();
-    refreshKpis();
+    notifyDataChanged();
     toast("Entrata salvata", "success");
   } catch (err) {
     toastError(err);

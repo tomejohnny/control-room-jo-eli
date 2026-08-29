@@ -3,7 +3,8 @@ import { insertRow, insertRows, updateRow, deleteRow } from "../lib/db.js";
 import { money, escapeHtml, todayIso } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
-import { refreshKpis } from "../lib/kpis.js";
+import { notifyDataChanged } from "../lib/bus.js";
+import { confirmDialog } from "../lib/confirm.js";
 import { barChart } from "../lib/charts.js";
 
 const TABLE = "cash_movements";
@@ -129,12 +130,11 @@ function onEdit(id) {
 }
 
 async function onDelete(id) {
-  if (!confirm("Eliminare questo movimento?")) return;
+  if (!(await confirmDialog("Eliminare questo movimento?"))) return;
   try {
     await deleteRow(TABLE, id);
     await loadAll();
-    render();
-    refreshKpis();
+    notifyDataChanged();
     toast("Movimento eliminato");
   } catch (err) {
     toastError(err);
@@ -162,8 +162,7 @@ async function onSubmit(event) {
     closeModal("txModal");
     resetForm();
     await loadAll();
-    render();
-    refreshKpis();
+    notifyDataChanged();
     toast("Movimento salvato", "success");
   } catch (err) {
     toastError(err);
@@ -198,12 +197,11 @@ async function onCsvImport(event) {
   const rows = parseCsv(await file.text());
   event.target.value = "";
   if (!rows.length) return toast("CSV vuoto o colonne non riconosciute.", "error");
-  if (!confirm(`Importare ${rows.length} movimenti?`)) return;
+  if (!(await confirmDialog(`Importare ${rows.length} movimenti?`))) return;
   try {
     await insertRows(TABLE, rows);
     await loadAll();
-    render();
-    refreshKpis();
+    notifyDataChanged();
     toast(`${rows.length} movimenti importati`, "success");
   } catch (err) {
     toastError(err);
