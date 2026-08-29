@@ -3,7 +3,8 @@ import { insertRow, updateRow, deleteRow } from "../lib/db.js";
 import { money, escapeHtml } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
-import { refreshKpis } from "../lib/kpis.js";
+import { notifyDataChanged } from "../lib/bus.js";
+import { confirmDialog } from "../lib/confirm.js";
 
 const TABLE = "fixed_expenses";
 let editingId = null;
@@ -89,12 +90,11 @@ function onEdit(id) {
 }
 
 async function onDelete(id) {
-  if (!confirm("Eliminare questa voce di budget?")) return;
+  if (!(await confirmDialog("Eliminare questa voce di budget?"))) return;
   try {
     await deleteRow(TABLE, id);
     await loadAll();
-    render();
-    refreshKpis();
+    notifyDataChanged();
     toast("Voce eliminata");
   } catch (err) {
     toastError(err);
@@ -123,8 +123,7 @@ async function onSubmit(event) {
     closeModal("budgetModal");
     resetForm();
     await loadAll();
-    render();
-    refreshKpis();
+    notifyDataChanged();
     toast("Voce salvata", "success");
   } catch (err) {
     toastError(err);

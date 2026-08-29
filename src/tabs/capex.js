@@ -3,6 +3,8 @@ import { insertRow, updateRow, deleteRow } from "../lib/db.js";
 import { money, escapeHtml, todayIso } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
+import { notifyDataChanged } from "../lib/bus.js";
+import { confirmDialog } from "../lib/confirm.js";
 import { lineChart } from "../lib/charts.js";
 import { fetchLivePrice } from "../lib/marketprice.js";
 import { investmentStats } from "../lib/investments.js";
@@ -90,11 +92,11 @@ function onEdit(id) {
 }
 
 async function onDelete(id) {
-  if (!confirm("Eliminare questo investimento?")) return;
+  if (!(await confirmDialog("Eliminare questo investimento?"))) return;
   try {
     await deleteRow(TABLE, id);
     await loadAll();
-    render();
+    notifyDataChanged();
     toast("Investimento eliminato");
   } catch (err) {
     toastError(err);
@@ -123,7 +125,7 @@ async function onSubmit(event) {
     closeModal("capexModal");
     resetForm();
     await loadAll();
-    render();
+    notifyDataChanged();
     toast("Investimento salvato", "success");
   } catch (err) {
     toastError(err);
@@ -137,7 +139,7 @@ async function onRefreshPrice(id) {
     const price = await fetchLivePrice(inv.ticker);
     await updateRow(TABLE, inv.id, { current_value: price, last_update: new Date().toISOString() });
     await loadAll();
-    render();
+    notifyDataChanged();
     toast(`Prezzo aggiornato: ${money(price)}`, "success");
   } catch (err) {
     toastError(err);
@@ -170,7 +172,7 @@ async function onDepositSubmit(event) {
     });
     closeModal("capexDepositModal");
     await loadAll();
-    render();
+    notifyDataChanged();
     toast("Versamento registrato", "success");
   } catch (err) {
     toastError(err);
