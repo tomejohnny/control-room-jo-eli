@@ -7,6 +7,7 @@ import { notifyDataChanged } from "../lib/bus.js";
 import { confirmDialog } from "../lib/confirm.js";
 import { barChart } from "../lib/charts.js";
 import { planMonthlyMovements } from "../lib/generate.js";
+import { anomalyCheck } from "../lib/anomaly.js";
 
 const TABLE = "cash_movements";
 let editingId = null;
@@ -52,6 +53,10 @@ export function render() {
       : `<span class="badge" style="background:${tx.movement_type === "ENTRATA" ? "var(--accent-green)" : "var(--accent-red)"}">${escapeHtml(tx.movement_type)}</span>`;
     const confirmBtn = isPlanned ? `<button class="btn btn-green" style="padding:3px 6px;font-size:0.6rem" data-confirm="${tx.id}">Conferma</button>` : "";
     const confirmBtnMobile = isPlanned ? `<button class="btn btn-green" style="padding:3px 8px;font-size:0.65rem" data-confirm="${tx.id}">Conferma</button>` : "";
+    const anomaly = anomalyCheck(tx, getState().cashMovements);
+    const anomalyFlag = anomaly
+      ? `<span title="Media storica categoria: ${money(anomaly.average)}">⚠️</span>`
+      : "";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -59,7 +64,7 @@ export function render() {
       <td><strong>${escapeHtml(tx.description)}</strong>${tx.account ? `<div style="font-size:0.65rem;color:var(--text-muted)">${escapeHtml(tx.account)}</div>` : ""}</td>
       <td>${escapeHtml(tx.subject)}</td>
       <td>${typeBadge}</td>
-      <td class="amount ${colorClass}" style="text-align:right">${sign}${money(tx.amount)}</td>
+      <td class="amount ${colorClass}" style="text-align:right">${anomalyFlag} ${sign}${money(tx.amount)}</td>
       <td style="text-align:center">
         ${confirmBtn}
         <button class="btn btn-ghost" style="padding:3px 6px;font-size:0.6rem" data-edit="${tx.id}">Modifica</button>
@@ -72,7 +77,7 @@ export function render() {
     card.innerHTML = `
       <div class="m-card-header">
         <span class="m-card-title">${escapeHtml(tx.description)}</span>
-        <span class="m-card-amount ${colorClass}">${sign}${money(tx.amount)}</span>
+        <span class="m-card-amount ${colorClass}">${anomalyFlag} ${sign}${money(tx.amount)}</span>
       </div>
       <div class="m-card-details">
         <span>${escapeHtml(tx.movement_date)} - <strong>${escapeHtml(tx.subject)}</strong></span>
@@ -91,6 +96,7 @@ export function render() {
 
   renderChart();
   renderCategoryOptions();
+  renderAccounts();
 
   tbody.querySelectorAll("[data-delete]").forEach(b => b.addEventListener("click", () => onDelete(b.dataset.delete)));
   tbody.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => onEdit(b.dataset.edit)));
@@ -98,6 +104,29 @@ export function render() {
   mobile.querySelectorAll("[data-delete]").forEach(b => b.addEventListener("click", () => onDelete(b.dataset.delete)));
   mobile.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => onEdit(b.dataset.edit)));
   mobile.querySelectorAll("[data-confirm]").forEach(b => b.addEventListener("click", () => onConfirmPlanned(b.dataset.confirm)));
+}
+
+function renderAccounts() {
+  const container = document.getElementById("cf-accounts");
+  if (!container) return;
+  const balances = new Map();
+  getState().cashMovements
+    .filter(m => m.status !== "Previsto" && m.account)
+    .forEach(m => {
+      const amount = Number(m.amount || 0);
+      const delta = m.movement_type === "ENTRATA" ? amount : -amount;
+      balances.set(m.account, (balances.get(m.account) || 0) + delta);
+    });
+
+  if (balances.size < 2) {
+    container.innerHTML = "";
+    return;
+  }
+
+  const chips = [...balances.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([account, balance]) =>
+    `<span class="badge" style="background:${balance >= 0 ? "var(--accent-green)" : "var(--accent-red)"}">${escapeHtml(account)}: ${money(balance)}</span>`
+  ).join(" ");
+  container.innerHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap">${chips}</div>`;
 }
 
 function renderCategoryOptions() {

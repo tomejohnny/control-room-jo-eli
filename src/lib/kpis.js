@@ -1,9 +1,9 @@
 import { getState } from "./store.js";
-import { bankBalance, monthEndMargin, dscr, liquidityMonths } from "./finance.js";
+import { bankBalance, monthEndMargin, dscr, liquidityMonths, netWorth, savingsRate } from "./finance.js";
 import { money } from "./format.js";
 
 export function refreshKpis() {
-  const { cashMovements, fixedExpenses, recurringIncome, deadlines } = getState();
+  const { cashMovements, fixedExpenses, recurringIncome, deadlines, investments, investmentTransactions } = getState();
 
   const balance = bankBalance(cashMovements);
   document.getElementById("kpi-balance").textContent = money(balance);
@@ -22,4 +22,12 @@ export function refreshKpis() {
 
   const months = liquidityMonths(cashMovements, fixedExpenses);
   document.getElementById("kpi-liquidity").textContent = months == null ? "n/d" : months.toFixed(1) + " mesi";
+
+  const worth = netWorth(cashMovements, fixedExpenses, investments, investmentTransactions);
+  document.getElementById("kpi-networth").textContent = money(worth);
+
+  const rate = savingsRate(recurringIncome, fixedExpenses);
+  const rateEl = document.getElementById("kpi-savings-rate");
+  rateEl.textContent = rate == null ? "n/d" : (rate * 100).toFixed(0) + "%";
+  rateEl.className = rate == null ? "kpi-value" : "kpi-value " + (rate >= 0 ? "text-green" : "text-red");
 }

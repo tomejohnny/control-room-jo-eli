@@ -86,6 +86,7 @@ function onEdit(id) {
   document.getElementById("b-amount").value = b.amount;
   document.getElementById("b-dueday").value = b.due_day || "";
   document.getElementById("b-active").checked = b.active !== false;
+  document.getElementById("b-remaining").value = b.remaining_balance || "";
   openModal("budgetModal");
 }
 
@@ -112,6 +113,9 @@ async function onSubmit(event) {
     amount: Number(document.getElementById("b-amount").value),
     due_day: dueDay ? Number(dueDay) : null,
     active: document.getElementById("b-active").checked,
+    remaining_balance: document.getElementById("b-remaining").value
+      ? Number(document.getElementById("b-remaining").value)
+      : null,
   };
   if (!payload.description || !Number.isFinite(payload.amount)) {
     toast("Inserisci descrizione e importo validi.", "error");
