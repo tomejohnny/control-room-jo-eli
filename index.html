@@ -159,14 +159,43 @@
         <div id="view-budget" class="view-section">
             <div class="card">
                 <h2>📋 Master Budget &amp; Inventario Spese</h2>
+                <p class="hint">Tre livelli di spesa: <strong>Fisso Certo</strong> (importo e cadenza contrattuali, modificabile qui sotto), <strong>Variabile Stimato</strong> (dipende dai consumi, stima di riferimento) e <strong>Accantonamento Mensilizzato</strong> (pagamento reale una tantum, quota mensile virtuale). Le ultime due voci mostrano il periodo più recente disponibile: <span id="budget-variable-period"></span>.</p>
+                <h3 class="budget-tier-title">Fisso Certo</h3>
                 <table class="desktop-table">
                     <thead><tr><th>Voce di Spesa / Debito</th><th>Categoria</th><th>Soggetto</th><th>Cadenza</th><th style="text-align:right">Importo</th><th style="text-align:center">Azioni</th></tr></thead>
                     <tbody id="budget-table-body"></tbody>
                 </table>
                 <div id="budget-mobile" class="mobile-cards-container"></div>
                 <div class="total-bar">
-                    <span class="label">TOTALE USCITE MENSILI ATTIVE:</span>
+                    <span class="label">TOTALE FISSO CERTO:</span>
                     <span id="budget-total-sum" class="value amount text-red">€ 0,00</span>
+                </div>
+
+                <h3 class="budget-tier-title">Variabile Stimato</h3>
+                <table class="desktop-table">
+                    <thead><tr><th>Voce</th><th>Categoria</th><th style="text-align:right">Importo stimato</th></tr></thead>
+                    <tbody id="budget-variable-table-body"></tbody>
+                </table>
+                <div id="budget-variable-mobile" class="mobile-cards-container"></div>
+                <div class="total-bar">
+                    <span class="label">TOTALE VARIABILE STIMATO:</span>
+                    <span id="budget-variable-total-sum" class="value amount text-red">€ 0,00</span>
+                </div>
+
+                <h3 class="budget-tier-title">Accantonamento Mensilizzato</h3>
+                <table class="desktop-table">
+                    <thead><tr><th>Voce</th><th>Categoria</th><th style="text-align:right">Quota mensile</th></tr></thead>
+                    <tbody id="budget-accant-table-body"></tbody>
+                </table>
+                <div id="budget-accant-mobile" class="mobile-cards-container"></div>
+                <div class="total-bar">
+                    <span class="label">TOTALE ACCANTONAMENTO MENSILIZZATO:</span>
+                    <span id="budget-accant-total-sum" class="value amount text-red">€ 0,00</span>
+                </div>
+
+                <div class="total-bar budget-grand-total">
+                    <span class="label"><strong>TOTALE MASTER BUDGET (tutti e tre i livelli):</strong></span>
+                    <span id="budget-grand-total-sum" class="value amount text-red"><strong>€ 0,00</strong></span>
                 </div>
             </div>
         </div>
