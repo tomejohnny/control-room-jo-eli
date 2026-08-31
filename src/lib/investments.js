@@ -10,11 +10,14 @@ export function investmentStats(investment, investmentTransactions) {
     .sort((a, b) => new Date(a.transaction_date) - new Date(b.transaction_date));
 
   if (!txs.length) {
+    // Con ticker, current_value e' il prezzo per quota (aggiornato dal refresh
+    // prezzi), non il valore della posizione: senza versamenti la posizione vale 0.
+    const currentValue = investment.ticker ? 0 : Number(investment.current_value || 0);
     return {
       hasUnits: false,
       units: 0,
       invested: 0,
-      currentValue: Number(investment.current_value || 0),
+      currentValue,
       points: [],
     };
   }
