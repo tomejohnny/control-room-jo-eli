@@ -148,7 +148,18 @@ h1, h2, .brand-name, .login-box h1 { font-family: "Cormorant Garamond", Georgia,
 .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 9px 10px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 7px; color: var(--text-main); font-size: 0.85rem; }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: 2px solid var(--accent-blue-soft); border-color: var(--accent-blue); }
 
+/* min-width:0 sui figli: le colonne "1fr" di una grid di default non
+   scendono sotto il min-content del loro contenuto (equivale a
+   minmax(auto,1fr), non minmax(0,1fr)) - un <input type="month"> ha un
+   controllo nativo con una larghezza minima piuttosto larga, quindi senza
+   questa regola la colonna si allarga per contenerlo, sfonda il .card e
+   fa scrollare/rimpicciolire tutta la pagina su schermi stretti. Bug reale
+   trovato da Jo confrontando il tab Report con Risk & Burn (31/08/2026) -
+   riguardava anche il filtro data del Cash Flow (#cf-month), non solo
+   Report, perche' lo stesso pattern .flex-row + input type="month" e'
+   usato in piu' tab. */
 .flex-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.flex-row > * { min-width: 0; }
 @media (max-width: 600px) { .flex-row { grid-template-columns: 1fr; } }
 
 /* ---------- Modal ---------- */
