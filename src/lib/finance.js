@@ -17,10 +17,20 @@ export function bankBalance(cashMovements) {
     }, 0);
 }
 
+// "Sospesa" = congelata di proposito (es. le rate F24 di Jo, decisione del
+// 31/08/2026): il debito resta reale ma per scelta non viene versato in
+// questo ciclo, quindi non va sottratto dalla cassa attesa a fine mese -
+// altrimenti il margine mostrato sarebbe piu' basso di quanto accadra'
+// davvero sotto il piano attuale. Stesso criterio gia' in uso in
+// getUrgentDeadlines() (alerts.js) e nel pannello Risk & Burn (risk.js).
+function isPendingForCash(d) {
+  return d.status !== "Completato" && d.status !== "Sospesa" && d.status !== "SOSPESA";
+}
+
 export function monthEndMargin(cashMovements, deadlines, ref = new Date()) {
   const balance = bankBalance(cashMovements);
   const pending = deadlines
-    .filter(d => d.status !== "Completato" && sameMonth(d.due_date, ref))
+    .filter(d => isPendingForCash(d) && sameMonth(d.due_date, ref))
     .reduce((sum, d) => sum + Number(d.amount || 0), 0);
   return balance - pending;
 }
@@ -76,7 +86,7 @@ export function quarterlyTreasury(recurringIncome, fixedExpenses, deadlines, qua
     const start = new Date(ref.getFullYear(), startMonth, 1);
     const end = new Date(ref.getFullYear(), startMonth + 3, 0);
     const oneOff = deadlines
-      .filter(d => d.status !== "Completato" && inRange(d.due_date, start, end))
+      .filter(d => isPendingForCash(d) && inRange(d.due_date, start, end))
       .reduce((sum, d) => sum + Number(d.amount || 0), 0);
     const income = monthlyIncome * 3;
     const expense = monthlyExpense * 3 + oneOff;
