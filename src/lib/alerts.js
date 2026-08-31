@@ -1,4 +1,5 @@
 import { escapeHtml, money } from "./format.js";
+import { isDeadlinePending } from "./deadline-status.js";
 
 const URGENT_DAYS = 7;
 
@@ -65,7 +66,7 @@ export function getUrgentDeadlines(deadlines, ref = new Date()) {
   const cutoff = new Date(ref);
   cutoff.setDate(cutoff.getDate() + URGENT_DAYS);
   return deadlines
-    .filter(d => d.status !== "Completato" && d.status !== "Sospesa" && d.status !== "SOSPESA")
+    .filter(isDeadlinePending)
     .filter(d => d.status === "Critico" || (d.due_date && new Date(d.due_date) <= cutoff))
     .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
 }
