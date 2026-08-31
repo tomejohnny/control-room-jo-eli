@@ -1,0 +1,24 @@
+name: Test & Build
+
+# Rete di sicurezza indipendente da chi applica la modifica (Claude Code
+# locale, incolla da GitHub mobile web, o altro): se un cambiamento rompe la
+# logica di calcolo o il build, questo workflow lo segnala su ogni push a
+# main entro un paio di minuti, senza dover aspettare che qualcuno se ne
+# accorga usando l'app dal vivo.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
