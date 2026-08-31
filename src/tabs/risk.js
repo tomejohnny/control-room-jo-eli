@@ -1,6 +1,7 @@
 import { getState } from "../lib/store.js";
 import { liquidityMonths, dscr, bankBalance } from "../lib/finance.js";
 import { money, escapeHtml } from "../lib/format.js";
+import { isDeadlinePending } from "../lib/deadline-status.js";
 
 export function render() {
   const { cashMovements, fixedExpenses, recurringIncome, deadlines } = getState();
@@ -9,12 +10,16 @@ export function render() {
   const dscrValue = dscr(recurringIncome, fixedExpenses);
   const balance = bankBalance(cashMovements);
 
+  // Nota: qui NON si esclude "Sospesa" di proposito - questo e' il totale dei
+  // debiti/impegni residui (quanto si deve ancora, punto), non la pressione
+  // di cassa attesa questo ciclo (che e' invece cio' che isDeadlinePending
+  // filtra altrove) - una rata congelata resta comunque un debito residuo.
   const shortTermDebts = deadlines.filter(d =>
     d.status !== "Completato" && String(d.category || "").toLowerCase().includes("debito")
   );
   const shortTermTotal = shortTermDebts.reduce((s, d) => s + Number(d.amount || 0), 0);
 
-  // Stesso criterio di esclusione di getUrgentDeadlines() in alerts.js: le
+  // Stesso criterio isDeadlinePending usato in alerts.js e finance.js: le
   // scadenze "Sospesa" sono congelate di proposito (es. le rate F24 di Jo) e
   // non vanno mostrate come "alta priorità" ogni giorno. In piu': una
   // scadenza zero_margin_risk (es. Accertamento con Adesione di Elisa) va
@@ -22,7 +27,7 @@ export function render() {
   // di rischio reale (decadenza dell'intero piano), non un'etichetta
   // impostata a mano che puo' non essere aggiornata.
   const critical = deadlines.filter(d =>
-    d.status !== "Completato" && d.status !== "Sospesa" && d.status !== "SOSPESA" &&
+    isDeadlinePending(d) &&
     (d.status === "Critico" || d.priority === "Critica" || d.priority === "Alta" || d.zero_margin_risk)
   );
 
