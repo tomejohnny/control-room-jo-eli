@@ -25,7 +25,7 @@ const PAGE_TITLES = {
   cashflow: ["Cash Flow", "Movimenti di cassa consolidati"],
   incomes: ["Entrate Fisse", "Entrate ricorrenti mensili"],
   budget: ["Master Budget", "Spese fisse e inventario"],
-  gemelle: ["Ambra & Bianca", "Fondo di studio V80A"],
+  gemelle: ["Ambra & Bianca", "Fondo di studio"],
   scadenziario: ["Scadenziario", "Scadenze fiscali e finanziarie"],
   fisco: ["Fisco (27%)", "Cassetto fiscale e simulatore forfettario"],
   treasury: ["Treasury", "Proiezione trimestrale a 12 mesi"],
