@@ -93,6 +93,10 @@ h1, h2, .brand-name, .login-box h1 { font-family: "Cormorant Garamond", Georgia,
 .text-red { color: var(--accent-red); }
 .text-amber { color: var(--accent-amber); }
 
+.budget-tier-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); margin: 22px 0 8px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+.card h3.budget-tier-title:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+.budget-grand-total { border-top: 2px solid var(--accent-blue); margin-top: 14px; padding-top: 12px; background: var(--accent-blue-soft); }
+
 .mobile-cards-container { display: none; }
 
 @media (max-width: 800px) {
