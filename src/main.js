@@ -4,7 +4,7 @@ import { wireModals } from "./lib/modal.js";
 import { loadAll, getState } from "./lib/store.js";
 import { refreshKpis } from "./lib/kpis.js";
 import { toastError } from "./lib/ui.js";
-import { renderAlertBanner } from "./lib/alerts.js";
+import { renderAlertBanner, renderZeroMarginHero } from "./lib/alerts.js";
 import { onDataChanged } from "./lib/bus.js";
 import { initConfirm } from "./lib/confirm.js";
 
@@ -46,6 +46,7 @@ function renderAll() {
   renderRisk();
   renderReport();
   refreshKpis();
+  renderZeroMarginHero(getState().deadlines, switchToView);
   renderAlertBanner(getState().deadlines, switchToView);
 }
 

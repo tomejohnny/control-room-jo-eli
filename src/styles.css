@@ -164,6 +164,37 @@ h1, h2, .brand-name, .login-box h1 { font-family: "Cormorant Garamond", Georgia,
   border-radius: 10px; padding: 10px 14px; margin-bottom: 15px; font-size: 0.8rem;
 }
 
+/* ---------- Prossima scadenza a margine zero: sempre visibile, non legata
+   alla finestra di urgenza in giorni (vedi src/lib/alerts.js) ---------- */
+.zero-margin-hero { display: none; }
+.zero-margin-hero.visible {
+  display: block;
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent-red);
+  border-left: 4px solid var(--accent-red);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-card);
+}
+.zmh-eyebrow {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--accent-red); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+}
+.zmh-eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-red); display: inline-block; }
+.zmh-main { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.zmh-title { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; font-size: 1.15rem; color: var(--text-main); }
+.zmh-amount { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 700; font-size: 1.5rem; color: var(--accent-red); white-space: nowrap; }
+.zmh-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.zmh-date { font-size: 0.78rem; color: var(--text-muted); }
+.zmh-chip {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+  padding: 3px 9px; border-radius: 20px; white-space: nowrap;
+}
+.zmh-critical { background: var(--accent-red); color: #fff; }
+.zmh-warning { background: var(--accent-amber-soft); color: var(--accent-amber); }
+.zmh-neutral { background: var(--accent-blue-soft); color: var(--accent-blue); }
+
 .match-hint {
   margin-top: 4px; font-size: 0.7rem; color: var(--accent-green); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
 }
