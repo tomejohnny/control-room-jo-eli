@@ -104,6 +104,24 @@ h1, h2, .brand-name, .login-box h1 { font-family: "Cormorant Garamond", Georgia,
   .mobile-cards-container { display: flex; flex-direction: column; gap: 10px; }
 }
 
+/* Il tab Report (src/tabs/report.js) genera solo <table class="desktop-table">,
+   mai la versione .mobile-cards-container/.m-card usata dagli altri tab -
+   quindi la regola sopra lo svuotava del tutto su telefono (i titoli <h3>
+   restavano visibili, le tabelle sotto sparivano: bug segnalato da Jo il
+   31/08/2026 con uno screenshot). A differenza degli altri tab, Report e'
+   pensato anche per stampa/esportazione (bottone "Stampa / Salva PDF"), quindi
+   qui le tabelle restano tabelle anche su mobile - a scorrimento orizzontale
+   invece che spezzate in schede - piuttosto che riscriverle come .m-card. */
+@media (max-width: 800px) {
+  #report-content { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  /* niente min-width forzato: le tabelle a 2 colonne (Situazione Attuale,
+     Cash Flow, ecc.) stanno gia' comode a piena larghezza schermo grazie a
+     width:100% - lo scroll orizzontale di #report-content resta come rete
+     di sicurezza solo per le tabelle piu' larghe (Budget vs Speso, Scadenze
+     nel Mese) o per un titolo di scadenza lungo che non va a capo. */
+  #report-content .desktop-table { display: table; margin-bottom: 4px; }
+}
+
 .m-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px; position: relative; }
 .m-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .m-card-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
