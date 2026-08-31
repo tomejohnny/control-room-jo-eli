@@ -2,6 +2,22 @@ import { getState } from "../lib/store.js";
 import { liquidityMonths, dscr, bankBalance } from "../lib/finance.js";
 import { money, escapeHtml } from "../lib/format.js";
 import { isDeadlinePending } from "../lib/deadline-status.js";
+import { cardPlafondStatus } from "../lib/creditcard.js";
+
+// Plafond carta di credito: 1.500 euro a testa, per ciclo (29 del mese -
+// 28 del mese successivo). Serve soprattutto a Eli, che non ha un'app della
+// banca per controllare la propria carta (il conto e' cointestato ma
+// l'app e' abbinata a una sola persona, e ce l'ha Jo) - qui puo' vedere
+// quanto le resta senza doverlo chiedere.
+const CARD_PLAFOND = 1500;
+const CARDHOLDERS = ["Jo", "Eli"];
+
+function plafondColor(remaining, plafond) {
+  const pct = remaining / plafond;
+  if (pct >= 0.5) return "text-green";
+  if (pct >= 0.2) return "text-amber";
+  return "text-red";
+}
 
 export function render() {
   const { cashMovements, fixedExpenses, recurringIncome, deadlines } = getState();
@@ -31,6 +47,14 @@ export function render() {
     (d.status === "Critico" || d.priority === "Critica" || d.priority === "Alta" || d.zero_margin_risk)
   );
 
+  const plafondStatuses = CARDHOLDERS.map(person => ({
+    person,
+    ...cardPlafondStatus(deadlines, person, CARD_PLAFOND),
+  }));
+  const cycleLabel = plafondStatuses.length
+    ? `${plafondStatuses[0].cycleStart.toLocaleDateString("it-IT", { day: "numeric", month: "short" })} - ${plafondStatuses[0].cycleEnd.toLocaleDateString("it-IT", { day: "numeric", month: "short" })}`
+    : "";
+
   const container = document.getElementById("risk-container");
   container.innerHTML = `
     <table class="desktop-table">
@@ -49,5 +73,14 @@ export function render() {
       <div class="mobile-cards-container" style="display:flex">
         ${critical.map(d => `<div class="m-card"><div class="m-card-header"><span class="m-card-title">${escapeHtml(d.title)}</span><span class="m-card-amount text-red">${money(d.amount)}</span></div><div style="font-size:0.75rem;color:var(--text-muted)">${escapeHtml(d.due_date)} - ${escapeHtml(d.status)}</div></div>`).join("")}
       </div>` : ""}
+
+    <h3 style="font-size:0.85rem;margin:16px 0 8px;color:var(--text-muted)">Plafond Carta di Credito - ciclo ${escapeHtml(cycleLabel)}</h3>
+    <table class="desktop-table">
+      ${plafondStatuses.map(p => `<tr><td>${escapeHtml(p.person)} - Disponibile</td><td class="amount ${plafondColor(p.remaining, p.plafond)}" style="text-align:right">${money(p.remaining)} <span style="color:var(--text-muted);font-weight:400">di ${money(p.plafond)}</span></td></tr>`).join("")}
+    </table>
+    <div class="mobile-cards-container" style="display:flex">
+      ${plafondStatuses.map(p => `<div class="m-card"><div class="m-card-header"><span class="m-card-title">${escapeHtml(p.person)}</span><span class="m-card-amount ${plafondColor(p.remaining, p.plafond)}">${money(p.remaining)}</span></div><div style="font-size:0.75rem;color:var(--text-muted)">Usati ${money(p.used)} di ${money(p.plafond)}</div></div>`).join("")}
+    </div>
+    <p class="hint">Aggiornato in base alle spese carta registrate in Control Room - se non hai ancora mandato le ultime spese, il numero qui puo' essere piu' alto di quello reale.</p>
   `;
 }
