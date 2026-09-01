@@ -7,6 +7,7 @@ import { notifyDataChanged } from "../lib/bus.js";
 import { confirmDialog } from "../lib/confirm.js";
 import { groupTransactionsByCycle } from "../lib/cardtransactions.js";
 import { cardPlafondStatus, plafondColor, plafondTileClass } from "../lib/creditcard.js";
+import { guessCategory } from "../lib/cardcategories.js";
 
 const TABLE = "card_transactions";
 const CARDHOLDERS = ["Jo", "Eli"];
@@ -15,6 +16,12 @@ const CARDHOLDERS = ["Jo", "Eli"];
 // carte si controllano tutte in un unico posto, insieme all'elenco spese.
 const CARD_PLAFOND = 1500;
 let editingId = null;
+// Ultima categoria proposta automaticamente da guessCategory() mentre si
+// digita la descrizione (vedi onDescInput) - serve per capire se il campo
+// categoria contiene ancora "il nostro" suggerimento (e quindi puo' essere
+// aggiornato o svuotato in autonomia) oppure un valore scritto a mano da Jo
+// (che non va mai sovrascritto).
+let lastSuggestedCategory = null;
 
 function fmtDate(d) {
   return d.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
@@ -67,6 +74,14 @@ function mobileCardHtml(t) {
     </div>`;
 }
 
+// Plafond, disponibilita' residua (renderizzati da plafondBarHtml, sempre
+// visibili) e il riepilogo per categoria di ogni ciclo (catChips, sempre
+// visibile) restano fuori dalla tendina - solo l'elenco dei singoli
+// movimenti va a comprimere/espandere (richiesto da Jo il 01/09/2026, dopo
+// aver categorizzato a mano tutte le spese: il dettaglio riga per riga serve
+// solo quando si vuole controllare qualcosa, non come vista di default). Il
+// ciclo aperto parte espanso (e' quello che si controlla piu' spesso),
+// quelli chiusi partono compressi.
 function groupHtml(g) {
   const catChips = Object.entries(g.byCategory)
     .sort((a, b) => b[1] - a[1])
@@ -80,11 +95,14 @@ function groupHtml(g) {
         <strong class="amount">${money(g.total)}</strong>
       </h2>
       ${catChips ? `<div style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap">${catChips}</div>` : ""}
-      <table class="desktop-table">
-        <thead><tr><th>Data</th><th>Descrizione</th><th>Categoria</th><th style="text-align:right">Importo</th><th style="text-align:center">Azioni</th></tr></thead>
-        <tbody>${g.rows.length ? g.rows.map(rowHtml).join("") : `<tr><td colspan="5" class="empty-state">Nessun movimento in questo ciclo.</td></tr>`}</tbody>
-      </table>
-      <div class="mobile-cards-container">${g.rows.map(mobileCardHtml).join("")}</div>
+      <details class="cardtx-details"${g.isOpen ? " open" : ""}>
+        <summary>Dettaglio movimenti (${g.rows.length})</summary>
+        <table class="desktop-table" style="margin-top:10px">
+          <thead><tr><th>Data</th><th>Descrizione</th><th>Categoria</th><th style="text-align:right">Importo</th><th style="text-align:center">Azioni</th></tr></thead>
+          <tbody>${g.rows.length ? g.rows.map(rowHtml).join("") : `<tr><td colspan="5" class="empty-state">Nessun movimento in questo ciclo.</td></tr>`}</tbody>
+        </table>
+        <div class="mobile-cards-container" style="margin-top:10px">${g.rows.map(mobileCardHtml).join("")}</div>
+      </details>
     </div>`;
 }
 
@@ -128,6 +146,7 @@ export function render() {
 
 function resetForm() {
   editingId = null;
+  lastSuggestedCategory = null;
   document.getElementById("cardtx-form").reset();
   document.getElementById("ctx-date").value = todayIso();
 }
@@ -136,6 +155,7 @@ function onEdit(id) {
   const t = getState().cardTransactions.find(r => String(r.id) === String(id));
   if (!t) return;
   editingId = t.id;
+  lastSuggestedCategory = null;
   document.getElementById("ctx-person").value = t.person;
   document.getElementById("ctx-date").value = t.purchase_date;
   document.getElementById("ctx-desc").value = t.description;
@@ -144,6 +164,31 @@ function onEdit(id) {
   document.getElementById("ctx-category").value = t.category || "";
   document.getElementById("ctx-excluded").checked = !!t.excluded_from_cycle;
   openModal("cardtxModal");
+}
+
+// Autocompila categoria (ed escluso dal ciclo, se pertinente) mentre Jo
+// digita la descrizione, riconoscendo l'esercente da MERCHANT_RULES (vedi
+// cardcategories.js, costruita dalle categorie che Jo ha gia' assegnato a
+// mano). Non tocca mai un valore scritto a mano: aggiorna/svuota solo se il
+// campo categoria e' vuoto o contiene ancora l'ultimo suggerimento nostro -
+// e non smarca mai da solo "escluso dal ciclo", solo lo marca quando serve.
+function onDescInput() {
+  const descField = document.getElementById("ctx-desc");
+  const catField = document.getElementById("ctx-category");
+  const exclField = document.getElementById("ctx-excluded");
+  const current = catField.value.trim();
+  const guess = guessCategory(descField.value);
+
+  if (guess) {
+    if (current === "" || current === lastSuggestedCategory) {
+      catField.value = guess.category;
+      lastSuggestedCategory = guess.category;
+    }
+    if (guess.excluded) exclField.checked = true;
+  } else if (current !== "" && current === lastSuggestedCategory) {
+    catField.value = "";
+    lastSuggestedCategory = null;
+  }
 }
 
 async function onDelete(id) {
@@ -189,4 +234,5 @@ async function onSubmit(event) {
 export function initCards() {
   document.getElementById("cardtx-form").addEventListener("submit", onSubmit);
   document.querySelector('[data-open-modal="cardtxModal"]').addEventListener("click", resetForm);
+  document.getElementById("ctx-desc").addEventListener("input", onDescInput);
 }
