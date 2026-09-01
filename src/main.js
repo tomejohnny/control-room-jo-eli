@@ -16,6 +16,7 @@ import { render as renderScadenziario, initScadenziario } from "./tabs/scadenzia
 import { render as renderFisco, initFisco } from "./tabs/fisco.js";
 import { render as renderTreasury } from "./tabs/treasury.js";
 import { render as renderCapex, initCapex } from "./tabs/capex.js";
+import { render as renderCards, initCards } from "./tabs/cards.js";
 import { render as renderRisk } from "./tabs/risk.js";
 import { render as renderReport, initReport } from "./tabs/report.js";
 
@@ -30,6 +31,7 @@ const PAGE_TITLES = {
   fisco: ["Fisco (27%)", "Cassetto fiscale e simulatore forfettario"],
   treasury: ["Treasury", "Proiezione trimestrale a 12 mesi"],
   capex: ["Capex & PAC", "Investimenti e piani di accumulo"],
+  cards: ["Carte", "Movimenti carta di Jo ed Eli, per ciclo"],
   risk: ["Risk & Burn", "Liquidità, DSCR e rischio a breve"],
   report: ["Report", "Riepilogo mensile e trimestrale esportabile"],
 };
@@ -43,6 +45,7 @@ function renderAll() {
   renderFisco();
   renderTreasury();
   renderCapex();
+  renderCards();
   renderRisk();
   renderReport();
   refreshKpis();
@@ -100,6 +103,7 @@ async function bootstrap(user) {
     initScadenziario();
     initFisco();
     initCapex();
+    initCards();
     initReport();
     initConfirm();
     wireModals();
