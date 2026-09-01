@@ -19,6 +19,15 @@ function plafondColor(remaining, plafond) {
   return "text-red";
 }
 
+// Stessa soglia di plafondColor, ma come modificatore per la barretta
+// colorata a sinistra della kpi-card (vedi styles.css: .kpi-card.green/.amber/.red)
+function plafondTileClass(remaining, plafond) {
+  const pct = remaining / plafond;
+  if (pct >= 0.5) return "green";
+  if (pct >= 0.2) return "amber";
+  return "red";
+}
+
 export function render() {
   const { cashMovements, fixedExpenses, recurringIncome, deadlines } = getState();
 
@@ -55,32 +64,54 @@ export function render() {
     ? `${plafondStatuses[0].cycleStart.toLocaleDateString("it-IT", { day: "numeric", month: "short" })} - ${plafondStatuses[0].cycleEnd.toLocaleDateString("it-IT", { day: "numeric", month: "short" })}`
     : "";
 
+  // Le carte vanno per prime: sono il dato che Jo ed Eli controllano piu'
+  // spesso (soprattutto Eli, che non ha l'app della banca) e su schermi
+  // larghi restavano in fondo alla pagina dentro una tabella stretta a due
+  // colonne che lasciava mezzo schermo vuoto a destra. Qui e piu' sotto si
+  // riusano le kpi-card gia' definite in styles.css (stesse della barra in
+  // cima a ogni pagina): sono un grid responsive che si allarga da solo
+  // invece di una tabella a larghezza fissa.
   const container = document.getElementById("risk-container");
   container.innerHTML = `
-    <table class="desktop-table">
-      <tr><td>Riserva di Liquidità  (Saldo Cassa / Spese Fisse Mensili)</td><td class="amount ${months == null ? "" : months >= 3 ? "text-green" : "text-red"}" style="text-align:right">${months == null ? "n/d" : months.toFixed(1) + " Mesi"}</td></tr>
-      <tr><td>Covenant Status (DSCR = Entrate Mensili / Rate Debito)</td><td class="amount ${dscrValue == null ? "" : dscrValue >= 1 ? "text-green" : "text-red"}" style="text-align:right">${dscrValue == null ? "n/d" : (dscrValue >= 1 ? "COMPLIANT " : "NON COMPLIANT ") + "(" + dscrValue.toFixed(2) + "x)"}</td></tr>
-      <tr><td>Debiti/Impegni a Breve Termine Residui</td><td class="amount text-red" style="text-align:right">${money(shortTermTotal)}</td></tr>
-      <tr><td>Saldo Cassa Attuale</td><td class="amount" style="text-align:right">${money(balance)}</td></tr>
-    </table>
-    <div class="mobile-cards-container">
-      <div class="m-card"><div class="m-card-header"><span class="m-card-title">Riserva di Liquidità </span><span class="m-card-amount ${months == null ? "" : months >= 3 ? "text-green" : "text-red"}">${months == null ? "n/d" : months.toFixed(1) + " Mesi"}</span></div></div>
-      <div class="m-card"><div class="m-card-header"><span class="m-card-title">Covenant Status (DSCR)</span><span class="m-card-amount ${dscrValue == null ? "" : dscrValue >= 1 ? "text-green" : "text-red"}">${dscrValue == null ? "n/d" : dscrValue.toFixed(2) + "x"}</span></div></div>
-      <div class="m-card"><div class="m-card-header"><span class="m-card-title">Debiti a Breve Residui</span><span class="m-card-amount text-red">${money(shortTermTotal)}</span></div></div>
+    <h3 style="font-size:0.85rem;margin:0 0 10px;color:var(--text-muted)">Plafond Carta di Credito - ciclo ${escapeHtml(cycleLabel)}</h3>
+    <div class="grid-kpi" style="margin-bottom:6px">
+      ${plafondStatuses.map(p => `
+        <div class="kpi-card ${plafondTileClass(p.remaining, p.plafond)}">
+          <div class="kpi-title">${escapeHtml(p.person)} - Disponibile</div>
+          <div class="kpi-value ${plafondColor(p.remaining, p.plafond)}">${money(p.remaining)}</div>
+          <div class="kpi-sub">Usati ${money(p.used)} di ${money(p.plafond)}</div>
+        </div>`).join("")}
     </div>
+    <p class="hint" style="margin-bottom:24px">Aggiornato in base alle spese carta registrate in Control Room - se non hai ancora mandato le ultime spese, il numero qui puo' essere piu' alto di quello reale.</p>
+
+    <h3 style="font-size:0.85rem;margin:0 0 10px;color:var(--text-muted)">Liquidità e Copertura Debiti</h3>
+    <div class="grid-kpi">
+      <div class="kpi-card ${months == null ? "" : months >= 3 ? "green" : "red"}">
+        <div class="kpi-title">Riserva di Liquidità</div>
+        <div class="kpi-value ${months == null ? "" : months >= 3 ? "text-green" : "text-red"}">${months == null ? "n/d" : months.toFixed(1) + " Mesi"}</div>
+        <div class="kpi-sub">Saldo Cassa / Spese Fisse Mensili</div>
+      </div>
+      <div class="kpi-card ${dscrValue == null ? "" : dscrValue >= 1 ? "green" : "red"}">
+        <div class="kpi-title">Covenant Status (DSCR)</div>
+        <div class="kpi-value ${dscrValue == null ? "" : dscrValue >= 1 ? "text-green" : "text-red"}">${dscrValue == null ? "n/d" : (dscrValue >= 1 ? "COMPLIANT " : "NON COMPLIANT ") + "(" + dscrValue.toFixed(2) + "x)"}</div>
+        <div class="kpi-sub">Entrate Mensili / Rate Debito</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-title">Debiti/Impegni a Breve Termine Residui</div>
+        <div class="kpi-value text-red">${money(shortTermTotal)}</div>
+        <div class="kpi-sub">Totale ancora da pagare</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Saldo Cassa Attuale</div>
+        <div class="kpi-value">${money(balance)}</div>
+        <div class="kpi-sub">Da Cash Flow</div>
+      </div>
+    </div>
+
     ${critical.length ? `
-      <h3 style="font-size:0.85rem;margin:16px 0 8px;color:var(--text-muted)">Scadenze ad alta priorità  non completate</h3>
+      <h3 style="font-size:0.85rem;margin:24px 0 10px;color:var(--text-muted)">Scadenze ad alta priorità  non completate</h3>
       <div class="mobile-cards-container" style="display:flex">
         ${critical.map(d => `<div class="m-card"><div class="m-card-header"><span class="m-card-title">${escapeHtml(d.title)}</span><span class="m-card-amount text-red">${money(d.amount)}</span></div><div style="font-size:0.75rem;color:var(--text-muted)">${escapeHtml(d.due_date)} - ${escapeHtml(d.status)}</div></div>`).join("")}
       </div>` : ""}
-
-    <h3 style="font-size:0.85rem;margin:16px 0 8px;color:var(--text-muted)">Plafond Carta di Credito - ciclo ${escapeHtml(cycleLabel)}</h3>
-    <table class="desktop-table">
-      ${plafondStatuses.map(p => `<tr><td>${escapeHtml(p.person)} - Disponibile</td><td class="amount ${plafondColor(p.remaining, p.plafond)}" style="text-align:right">${money(p.remaining)} <span style="color:var(--text-muted);font-weight:400">di ${money(p.plafond)}</span></td></tr>`).join("")}
-    </table>
-    <div class="mobile-cards-container" style="display:flex">
-      ${plafondStatuses.map(p => `<div class="m-card"><div class="m-card-header"><span class="m-card-title">${escapeHtml(p.person)}</span><span class="m-card-amount ${plafondColor(p.remaining, p.plafond)}">${money(p.remaining)}</span></div><div style="font-size:0.75rem;color:var(--text-muted)">Usati ${money(p.used)} di ${money(p.plafond)}</div></div>`).join("")}
-    </div>
-    <p class="hint">Aggiornato in base alle spese carta registrate in Control Room - se non hai ancora mandato le ultime spese, il numero qui puo' essere piu' alto di quello reale.</p>
   `;
 }
