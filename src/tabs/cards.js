@@ -6,9 +6,14 @@ import { toast, toastError } from "../lib/ui.js";
 import { notifyDataChanged } from "../lib/bus.js";
 import { confirmDialog } from "../lib/confirm.js";
 import { groupTransactionsByCycle } from "../lib/cardtransactions.js";
+import { cardPlafondStatus, plafondColor, plafondTileClass } from "../lib/creditcard.js";
 
 const TABLE = "card_transactions";
 const CARDHOLDERS = ["Jo", "Eli"];
+// Plafond carta di credito: 1.500 euro a testa, per ciclo (29 del mese - 28
+// del mese successivo). Spostato qui dal tab Risk & Burn il 01/09/2026: le
+// carte si controllano tutte in un unico posto, insieme all'elenco spese.
+const CARD_PLAFOND = 1500;
 let editingId = null;
 
 function fmtDate(d) {
@@ -83,16 +88,39 @@ function groupHtml(g) {
     </div>`;
 }
 
+function plafondBarHtml(deadlines) {
+  const statuses = CARDHOLDERS.map(person => ({
+    person,
+    ...cardPlafondStatus(deadlines, person, CARD_PLAFOND),
+  }));
+  const cycleLabel = statuses.length
+    ? `${statuses[0].cycleStart.toLocaleDateString("it-IT", { day: "numeric", month: "short" })} - ${statuses[0].cycleEnd.toLocaleDateString("it-IT", { day: "numeric", month: "short" })}`
+    : "";
+  return `
+    <h3 style="font-size:0.85rem;margin:0 0 10px;color:var(--text-muted)">Plafond Carta di Credito - ciclo ${escapeHtml(cycleLabel)}</h3>
+    <div class="grid-kpi" style="margin-bottom:6px">
+      ${statuses.map(p => `
+        <div class="kpi-card ${plafondTileClass(p.remaining, p.plafond)}">
+          <div class="kpi-title">${escapeHtml(p.person)} - Disponibile</div>
+          <div class="kpi-value ${plafondColor(p.remaining, p.plafond)}">${money(p.remaining)}</div>
+          <div class="kpi-sub">Usati ${money(p.used)} di ${money(p.plafond)}</div>
+        </div>`).join("")}
+    </div>
+    <p class="hint" style="margin-bottom:24px">Aggiornato in base alle spese carta registrate in Control Room - se non hai ancora mandato le ultime spese, il numero qui puo' essere piu' alto di quello reale.</p>`;
+}
+
 export function render() {
-  const { cardTransactions } = getState();
+  const { cardTransactions, deadlines } = getState();
   const container = document.getElementById("cards-container");
 
-  container.innerHTML = CARDHOLDERS.map(person => {
+  const groupsHtml = CARDHOLDERS.map(person => {
     const groups = groupTransactionsByCycle(cardTransactions, person, new Date(), 3);
     return `
       <h3 style="font-size:1rem;margin:18px 0 8px">${escapeHtml(person)}</h3>
       ${groups.map(groupHtml).join("")}`;
   }).join("");
+
+  container.innerHTML = plafondBarHtml(deadlines) + groupsHtml;
 
   container.querySelectorAll("[data-delete]").forEach(el => el.addEventListener("click", () => onDelete(el.dataset.delete)));
   container.querySelectorAll("[data-edit]").forEach(el => el.addEventListener("click", () => onEdit(el.dataset.edit)));
