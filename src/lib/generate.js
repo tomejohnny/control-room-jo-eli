@@ -31,7 +31,13 @@ export function planMonthlyMovements(fixedExpenses, recurringIncome, existingMov
   const plans = [];
 
   fixedExpenses
-    .filter(f => f.active !== false && !existingDescriptions.has(normalize(f.description)))
+    // Le voci con paid_by_card=true (es. Sky, Google One, Claude Pro, Amazon
+    // Music: abbonamenti Fisso Certo ma addebitati sulla carta di credito)
+    // non generano un movimento mensile separato: il loro impatto di cassa
+    // e' gia' incluso nella liquidazione aggregata del ciclo carta
+    // (deadlines, categoria "Carta di Credito"). Generarlo anche qui
+    // conterebbe la stessa spesa due volte.
+    .filter(f => f.active !== false && !f.paid_by_card && !existingDescriptions.has(normalize(f.description)))
     .forEach(f => {
       const day = clampDay(f.due_day, year, month0);
       plans.push({
