@@ -117,6 +117,17 @@ h1, h2, .brand-name, .login-box h1 { font-family: "Cormorant Garamond", Georgia,
    di Jo, stesso giorno) - la vera soluzione era generare le card come fanno
    tutti gli altri tab, non fare un'eccezione per Report. */
 
+/* Tab Carte (src/tabs/cards.js): il dettaglio dei singoli movimenti per
+   ciclo va a tendina - plafond, disponibilita' residua e riepilogo per
+   categoria restano sempre visibili fuori dal <details>, solo l'elenco
+   riga per riga si apre/chiude (richiesto da Jo il 01/09/2026 dopo aver
+   categorizzato a mano tutte le spese: il dettaglio serve solo quando si
+   vuole controllare, non come vista predefinita). */
+.cardtx-details > summary { cursor: pointer; font-size: 0.75rem; font-weight: 700; color: var(--accent-blue); list-style: none; padding: 6px 0; user-select: none; }
+.cardtx-details > summary::-webkit-details-marker { display: none; }
+.cardtx-details > summary::before { content: "▸ "; }
+.cardtx-details[open] > summary::before { content: "▾ "; }
+
 .m-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px; position: relative; }
 .m-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .m-card-title { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
