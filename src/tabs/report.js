@@ -187,6 +187,7 @@ function onExportBackup() {
     deadlines: state.deadlines,
     investments: state.investments,
     investment_transactions: state.investmentTransactions,
+    card_transactions: state.cardTransactions,
   };
   downloadFile(JSON.stringify(backup, null, 2), `family-control-room-backup-${todayIso()}.json`, "application/json;charset=utf-8");
 }
