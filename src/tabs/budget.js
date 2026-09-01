@@ -30,12 +30,16 @@ export function render() {
     const color = badgeColor(b.subject);
     const rowClass = b.active === false ? "inactive-row" : "";
 
+    const cardBadge = b.paid_by_card
+      ? `<span class="badge" style="background:var(--text-muted)" title="Pagato con carta di credito: nessun movimento mensile separato, l'impatto di cassa e' nella liquidazione del ciclo carta">Carta</span>`
+      : "";
+
     const tr = document.createElement("tr");
     tr.className = rowClass;
     tr.innerHTML = `
       <td><strong>${escapeHtml(b.description)}</strong></td>
       <td>${escapeHtml(b.category)}</td>
-      <td><span class="badge" style="background:${color}">${escapeHtml(b.subject)}</span></td>
+      <td><span class="badge" style="background:${color}">${escapeHtml(b.subject)}</span> ${cardBadge}</td>
       <td>${escapeHtml(b.frequency)}</td>
       <td class="amount text-red" style="text-align:right">${money(b.amount)}</td>
       <td style="text-align:center">
@@ -53,7 +57,7 @@ export function render() {
       </div>
       <div style="font-size:0.75rem;color:var(--text-muted)">Cat: <strong>${escapeHtml(b.category)}</strong> | Cadenza: ${escapeHtml(b.frequency)}</div>
       <div class="m-card-details">
-        <span class="badge" style="background:${color}">${escapeHtml(b.subject)}</span>
+        <span class="badge" style="background:${color}">${escapeHtml(b.subject)}</span> ${cardBadge}
         <div style="display:flex;gap:6px">
           <button class="btn btn-ghost" style="padding:3px 8px;font-size:0.65rem" data-edit="${b.id}">Modifica</button>
           <button class="btn btn-red" style="padding:3px 8px;font-size:0.65rem" data-delete="${b.id}">Elimina</button>
