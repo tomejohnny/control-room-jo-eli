@@ -39,3 +39,23 @@ export function cardPlafondStatus(deadlines, subject, plafond, ref = new Date())
     .reduce((sum, d) => sum + Number(d.amount || 0), 0);
   return { used, remaining: plafond - used, plafond, cycleStart, cycleEnd, settlementDate };
 }
+
+// Soglie colore per il residuo di plafond disponibile (usate nel tab Carte,
+// spostate qui dal tab Risk & Burn il 01/09/2026 assieme al blocco
+// "Disponibile" - le carte si controllano nella sezione dedicata, non piu'
+// in Risk & Burn che ora si concentra solo su liquidita'/DSCR/debiti).
+export function plafondColor(remaining, plafond) {
+  const pct = remaining / plafond;
+  if (pct >= 0.5) return "text-green";
+  if (pct >= 0.2) return "text-amber";
+  return "text-red";
+}
+
+// Stessa soglia di plafondColor, ma come modificatore per la barretta
+// colorata a sinistra della kpi-card (vedi styles.css: .kpi-card.green/.amber/.red)
+export function plafondTileClass(remaining, plafond) {
+  const pct = remaining / plafond;
+  if (pct >= 0.5) return "green";
+  if (pct >= 0.2) return "amber";
+  return "red";
+}
