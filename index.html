@@ -1,212 +1,534 @@
-Family Holding
-Control Room di Jo & Eli
-Email
-Password
-Accedi
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Holding Control Room</title>
+</head>
+<body>
 
+    <div id="login-overlay" class="login-overlay hidden">
+        <div class="login-box">
+            <h1>Family Holding</h1>
+            <p class="hint">Control Room di Jo &amp; Eli</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-green" style="width:100%">Accedi</button>
+                <div id="login-error" class="login-error"></div>
+            </form>
+        </div>
+    </div>
 
-Family Holding
-Control Room di Jo & Eli
-📊 Cash Flow 💶 Entrate Fisse 📋 Master Budget 🌱 Ambra & Bianca 🗓️ Scadenziario 🏛️ Fisco (27%) 📈 Treasury 💼 Capex & PAC 💳 Carte 🛡️ Risk & Burn 📄 Report
+    <div id="app-shell" class="app-shell">
+        <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-name">Family Holding</div>
+                <div class="brand-sub">Control Room di Jo &amp; Eli</div>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-view="cashflow"><span class="icon">📊</span> Cash Flow</button>
+                <button class="nav-btn" data-view="incomes"><span class="icon">💶</span> Entrate Fisse</button>
+                <button class="nav-btn" data-view="budget"><span class="icon">📋</span> Master Budget</button>
+                <button class="nav-btn" data-view="gemelle"><span class="icon">🌱</span> Ambra &amp; Bianca</button>
+                <button class="nav-btn" data-view="scadenziario"><span class="icon">🗓️</span> Scadenziario</button>
+                <button class="nav-btn" data-view="fisco"><span class="icon">🏛️</span> Fisco (27%)</button>
+                <button class="nav-btn" data-view="treasury"><span class="icon">📈</span> Treasury</button>
+                <button class="nav-btn" data-view="capex"><span class="icon">💼</span> Capex &amp; PAC</button>
+                <button class="nav-btn" data-view="cards"><span class="icon">💳</span> Carte</button>
+                <button class="nav-btn" data-view="risk"><span class="icon">🛡️</span> Risk &amp; Burn</button>
+                <button class="nav-btn" data-view="report"><span class="icon">📄</span> Report</button>
+            </nav>
+            <div class="sidebar-footer">
+                <div id="header-user" class="header-user"></div>
+                <button id="logout-btn" class="btn btn-ghost btn-sm">Esci</button>
+            </div>
+        </aside>
 
-Esci
-☰
-Cash Flow
-Movimenti di cassa consolidati
-Saldo Cassa
-€ 0,00
-Somma movimenti registrati
-Margine Fine Mese
-€ 0,00
-Saldo meno scadenze del mese
-DSCR Ratio
-n/d
-Copertura debiti (>1.0)
-Liquidità
-n/d
-Mesi di riserva
-Patrimonio Netto
-€ 0,00
-Liquidità + investimenti − debiti residui
-Tasso di Risparmio
-n/d
-Quota di entrate non consumata da spese fisse
+        <div class="main-area">
+            <header class="topbar no-print">
+                <div class="topbar-row">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Apri menu">☰</button>
+                        <div>
+                            <h1 id="page-title">Cash Flow</h1>
+                            <div class="subtitle" id="page-subtitle">Movimenti di cassa consolidati</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-kpi">
+                    <div class="kpi-card">
+                        <div class="kpi-title">Saldo Cassa</div>
+                        <div class="kpi-value" id="kpi-balance">€ 0,00</div>
+                        <div class="kpi-sub">Somma movimenti registrati</div>
+                    </div>
+                    <div class="kpi-card" id="kpi-card-margin">
+                        <div class="kpi-title">Margine Fine Mese</div>
+                        <div class="kpi-value" id="kpi-margin">€ 0,00</div>
+                        <div class="kpi-sub">Saldo meno scadenze del mese</div>
+                    </div>
+                    <div class="kpi-card amber">
+                        <div class="kpi-title">DSCR Ratio</div>
+                        <div class="kpi-value" id="kpi-dscr">n/d</div>
+                        <div class="kpi-sub">Copertura debiti (&gt;1.0)</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Liquidità</div>
+                        <div class="kpi-value" id="kpi-liquidity">n/d</div>
+                        <div class="kpi-sub">Mesi di riserva</div>
+                    </div>
+                    <div class="kpi-card green">
+                        <div class="kpi-title">Patrimonio Netto</div>
+                        <div class="kpi-value" id="kpi-networth">€ 0,00</div>
+                        <div class="kpi-sub">Liquidità + investimenti − debiti residui</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Tasso di Risparmio</div>
+                        <div class="kpi-value" id="kpi-savings-rate">n/d</div>
+                        <div class="kpi-sub">Quota di entrate non consumata da spese fisse</div>
+                    </div>
+                </div>
+            </header>
 
+            <main class="content">
+                <div id="zero-margin-hero" class="zero-margin-hero no-print"></div>
+                <div id="alert-banner" class="alert-banner no-print"></div>
 
-+ Movimento + Spesa + Entrata Fissa + Scadenza
-📊 Cash Flow Consolidato Genera Movimenti del Mese Importa CSV
+                <div class="actions-bar no-print">
+                    <button class="btn btn-green" data-open-modal="txModal">+ Movimento</button>
+                    <button class="btn btn-amber" data-open-modal="budgetModal">+ Spesa</button>
+                    <button class="btn" data-open-modal="incomeModal">+ Entrata Fissa</button>
+                    <button class="btn" data-open-modal="scadModal">+ Scadenza</button>
+                </div>
 
-Tutti i tipiEntrataUscita Azzera filtri
+        <!-- CASH FLOW -->
+        <div id="view-cashflow" class="view-section active">
+            <div class="card">
+                <h2>
+                    <span>📊 Cash Flow Consolidato</span>
+                    <span>
+                        <button class="btn btn-amber" id="cf-generate" style="font-size:0.65rem">Genera Movimenti del Mese</button>
+                        <button class="btn btn-ghost" id="cf-import" style="font-size:0.65rem">Importa CSV</button>
+                        <input id="cf-file" type="file" accept=".csv,text/csv" hidden>
+                    </span>
+                </h2>
+                <div class="flex-row" style="margin-bottom:10px">
+                    <input id="cf-search" placeholder="Cerca descrizione o soggetto">
+                    <input id="cf-month" type="month">
+                </div>
+                <div class="flex-row" style="margin-bottom:10px">
+                    <select id="cf-type"><option value="">Tutti i tipi</option><option value="ENTRATA">Entrata</option><option value="USCITA">Uscita</option></select>
+                    <button class="btn btn-ghost" id="cf-reset">Azzera filtri</button>
+                </div>
+                <div id="cf-summary" style="font-size:0.75rem;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px"></div>
+                <div id="cf-accounts" style="margin-bottom:10px"></div>
+                <div id="cf-chart" style="margin-bottom:15px"></div>
+                <table class="desktop-table">
+                    <thead>
+                        <tr><th>Data</th><th>Descrizione</th><th>Soggetto</th><th>Tipo</th><th style="text-align:right">Importo</th><th style="text-align:center">Azioni</th></tr>
+                    </thead>
+                    <tbody id="cf-table-body"></tbody>
+                </table>
+                <div id="cf-mobile" class="mobile-cards-container"></div>
+            </div>
+        </div>
 
+        <!-- ENTRATE FISSE -->
+        <div id="view-incomes" class="view-section">
+            <div class="card">
+                <h2>💶 Gestione Entrate Fisse Mensili</h2>
+                <p class="hint">Entrate ricorrenti (es. consulenze, stipendi).</p>
+                <table class="desktop-table">
+                    <thead><tr><th>Descrizione / Fonte</th><th>Soggetto</th><th>Cadenza</th><th style="text-align:right">Importo Mensile</th><th style="text-align:center">Azioni</th></tr></thead>
+                    <tbody id="incomes-table-body"></tbody>
+                </table>
+                <div id="incomes-mobile" class="mobile-cards-container"></div>
+                <div class="total-bar">
+                    <span class="label">TOTALE ENTRATE FISSE MENSILI ATTIVE:</span>
+                    <span id="incomes-total-sum" class="value amount text-green">€ 0,00</span>
+                </div>
+            </div>
+        </div>
 
-Data
-Descrizione
-Soggetto
-Tipo
-Importo
-Azioni
+        <!-- MASTER BUDGET -->
+        <div id="view-budget" class="view-section">
+            <div class="card">
+                <h2>📋 Master Budget &amp; Inventario Spese</h2>
+                <p class="hint">Tre livelli di spesa: <strong>Fisso Certo</strong> (importo e cadenza contrattuali, modificabile qui sotto), <strong>Variabile Stimato</strong> (dipende dai consumi, stima di riferimento) e <strong>Accantonamento Mensilizzato</strong> (pagamento reale una tantum, quota mensile virtuale). Le ultime due voci mostrano il periodo più recente disponibile: <span id="budget-variable-period"></span>.</p>
+                <h3 class="budget-tier-title">Fisso Certo</h3>
+                <table class="desktop-table">
+                    <thead><tr><th>Voce di Spesa / Debito</th><th>Categoria</th><th>Soggetto</th><th>Cadenza</th><th style="text-align:right">Importo</th><th style="text-align:center">Azioni</th></tr></thead>
+                    <tbody id="budget-table-body"></tbody>
+                </table>
+                <div id="budget-mobile" class="mobile-cards-container"></div>
+                <div class="total-bar">
+                    <span class="label">TOTALE FISSO CERTO:</span>
+                    <span id="budget-total-sum" class="value amount text-red">€ 0,00</span>
+                </div>
 
+                <h3 class="budget-tier-title">Variabile Stimato</h3>
+                <table class="desktop-table">
+                    <thead><tr><th>Voce</th><th>Categoria</th><th style="text-align:right">Importo stimato</th></tr></thead>
+                    <tbody id="budget-variable-table-body"></tbody>
+                </table>
+                <div id="budget-variable-mobile" class="mobile-cards-container"></div>
+                <div class="total-bar">
+                    <span class="label">TOTALE VARIABILE STIMATO:</span>
+                    <span id="budget-variable-total-sum" class="value amount text-red">€ 0,00</span>
+                </div>
 
-💶 Gestione Entrate Fisse Mensili
-Entrate ricorrenti (es. consulenze, stipendi).
-Descrizione / Fonte
-Soggetto
-Cadenza
-Importo Mensile
-Azioni
+                <h3 class="budget-tier-title">Accantonamento Mensilizzato</h3>
+                <table class="desktop-table">
+                    <thead><tr><th>Voce</th><th>Categoria</th><th style="text-align:right">Quota mensile</th></tr></thead>
+                    <tbody id="budget-accant-table-body"></tbody>
+                </table>
+                <div id="budget-accant-mobile" class="mobile-cards-container"></div>
+                <div class="total-bar">
+                    <span class="label">TOTALE ACCANTONAMENTO MENSILIZZATO:</span>
+                    <span id="budget-accant-total-sum" class="value amount text-red">€ 0,00</span>
+                </div>
 
+                <div class="total-bar budget-grand-total">
+                    <span class="label"><strong>TOTALE MASTER BUDGET (tutti e tre i livelli):</strong></span>
+                    <span id="budget-grand-total-sum" class="value amount text-red"><strong>€ 0,00</strong></span>
+                </div>
+            </div>
+        </div>
 
-TOTALE ENTRATE FISSE MENSILI ATTIVE: € 0,00
-📋 Master Budget & Inventario Spese
-Tre livelli di spesa: Fisso Certo (importo e cadenza contrattuali, modificabile qui sotto), Variabile Stimato (dipende dai consumi, stima di riferimento) e Accantonamento Mensilizzato (pagamento reale una tantum, quota mensile virtuale). Le ultime due voci mostrano il periodo più recente disponibile: .
-Fisso Certo
-Voce di Spesa / Debito
-Categoria
-Soggetto
-Cadenza
-Importo
-Azioni
+        <!-- AMBRA & BIANCA -->
+        <div id="view-gemelle" class="view-section">
+            <div class="card">
+                <h2>🌱 Ambra &amp; Bianca (Fondo di Studio)</h2>
+                <p class="hint">Gestione versamenti e monitoraggio del portafoglio di studio.</p>
+                <div style="margin-bottom:15px;background:var(--bg-card);padding:10px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;flex-wrap:wrap;gap:8px">
+                    <span>Prezzo Fondo: <strong id="display-v80a-price" style="color:var(--accent-blue)">€ 0,00</strong></span>
+                    <div style="display:flex;gap:6px">
+                        <button class="btn btn-green" id="refresh-live-price" style="padding:4px 8px;font-size:0.7rem">Refresh Live</button>
+                        <button class="btn btn-ghost" id="update-price-manually" style="padding:4px 8px;font-size:0.7rem">Modifica Manuale</button>
+                    </div>
+                </div>
+                <div id="gemelle-live-container" class="mobile-cards-container" style="display:flex"></div>
+                <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap">
+                    <button class="btn btn-green" data-open-gem="Ambra">+ Versamento Ambra</button>
+                    <button class="btn btn-green" data-open-gem="Bianca">+ Versamento Bianca</button>
+                </div>
+            </div>
+        </div>
 
+        <!-- SCADENZIARIO -->
+        <div id="view-scadenziario" class="view-section">
+            <div class="card">
+                <h2>📅 Sincronizza con Google Calendar</h2>
+                <p class="hint">Solo a senso unico: le scadenze qui sotto compaiono in automatico sul tuo Google Calendar (con qualche ora di ritardo, Google aggiorna i calendari esterni periodicamente); il contrario non avviene mai. Incolla il token una volta — resta solo in questo browser, non viene mai salvato nel codice.</p>
+                <div class="flex-row">
+                    <div class="form-group"><label>Token feed calendario</label><input type="password" id="ical-token" placeholder="Incolla qui il token"></div>
+                    <div class="form-group" style="display:flex;align-items:flex-end">
+                        <button class="btn btn-green" id="ical-copy" style="width:100%">Copia link feed iCal</button>
+                    </div>
+                </div>
+                <div id="ical-url-display" style="font-size:0.7rem;color:var(--text-muted);word-break:break-all;margin-top:6px"></div>
+            </div>
+            <div class="card">
+                <h2>🗓️ Scadenziario Fiscale &amp; Finanziario</h2>
+                <table class="desktop-table">
+                    <thead><tr><th>Data</th><th>Descrizione</th><th>Categoria</th><th style="text-align:right">Importo</th><th style="text-align:center">Stato</th><th style="text-align:center">Azioni</th></tr></thead>
+                    <tbody id="scad-table-body"></tbody>
+                </table>
+                <div id="scad-mobile" class="mobile-cards-container"></div>
+            </div>
+        </div>
 
-TOTALE FISSO CERTO: € 0,00
-Variabile Stimato
-Voce
-Categoria
-Importo stimato
+        <!-- FISCO -->
+        <div id="view-fisco" class="view-section">
+            <div class="card">
+                <h2>🏛️ Cassetto Fiscale &amp; Forfettario (27%)</h2>
+                <p class="hint">Obbligazioni con categoria "Fisco" nello Scadenziario.</p>
+                <table class="desktop-table">
+                    <thead><tr><th>Obbligazione Fiscale</th><th>Soggetto</th><th>Scadenza</th><th style="text-align:right">Importo</th></tr></thead>
+                    <tbody id="fisco-table-body"></tbody>
+                </table>
+                <div id="fisco-mobile" class="mobile-cards-container"></div>
+            </div>
+            <div class="card">
+                <h2>⚡ Simulatore Accantonamento 27%</h2>
+                <div class="calculator-box">
+                    <label for="invoiceAmount">Importo Fattura Lorda (€):</label>
+                    <input type="number" id="invoiceAmount" value="5500">
+                    <div class="result-row"><span>INPS Gestione Sep. (22.45%):</span><span id="inpsResult" class="text-amber">€ 0,00</span></div>
+                    <div class="result-row"><span>Imposta Sostitutiva 5% (4.31%):</span><span id="taxResult" style="color:var(--accent-blue)">€ 0,00</span></div>
+                    <div class="result-row" style="font-size:0.9rem"><span>Totale Accantonato (26.76%):</span><span id="totalResult" class="text-green">€ 0,00</span></div>
+                </div>
+            </div>
+        </div>
 
+        <!-- TREASURY -->
+        <div id="view-treasury" class="view-section">
+            <div class="card">
+                <h2>📈 Treasury &amp; Working Capital (12 Mesi)</h2>
+                <p class="hint">Proiezione trimestrale rolling da entrate fisse, spese fisse e scadenze.</p>
+                <div id="treasury-chart" style="margin-bottom:15px"></div>
+                <table class="desktop-table">
+                    <thead><tr><th>Trimestre</th><th>Entrate</th><th>Uscite</th><th style="text-align:right">Netto</th></tr></thead>
+                    <tbody id="treasury-table-body"></tbody>
+                </table>
+                <div id="treasury-mobile" class="mobile-cards-container"></div>
+            </div>
+        </div>
 
-TOTALE VARIABILE STIMATO: € 0,00
-Accantonamento Mensilizzato
-Voce
-Categoria
-Quota mensile
+        <!-- CAPEX & PAC -->
+        <div id="view-capex" class="view-section">
+            <div class="card">
+                <h2>
+                    <span>💼 Capex &amp; Asset Allocation</span>
+                    <button class="btn btn-green" data-open-modal="capexModal" style="font-size:0.65rem">+ Investimento</button>
+                </h2>
+                <div id="capex-container" class="mobile-cards-container" style="display:flex"></div>
+            </div>
+        </div>
 
+        <!-- CARTE -->
+        <div id="view-cards" class="view-section">
+            <div class="card">
+                <h2>
+                    <span>💳 Movimenti Carta</span>
+                    <button class="btn btn-green" data-open-modal="cardtxModal" style="font-size:0.65rem">+ Movimento Carta</button>
+                </h2>
+                <p class="hint">Elenco dei movimenti registrati per ciascuna carta, raggruppati per ciclo (29 del mese - 28 del successivo). Le voci gia' tracciate come scadenza a parte (Klarna, CapCut) restano visibili qui ma non entrano nel totale del ciclo, per non contare la stessa spesa due volte. Il plafond residuo si vede in Risk &amp; Burn.</p>
+                <div id="cards-container"></div>
+            </div>
+        </div>
 
-TOTALE ACCANTONAMENTO MENSILIZZATO: € 0,00
-TOTALE MASTER BUDGET (tutti e tre i livelli): € 0,00
-🌱 Ambra & Bianca (Fondo di Studio)
-Gestione versamenti e monitoraggio del portafoglio di studio.
-Prezzo Fondo: € 0,00
-Refresh Live
-Modifica Manuale
-+ Versamento Ambra
-+ Versamento Bianca
-📅 Sincronizza con Google Calendar
-Solo a senso unico: le scadenze qui sotto compaiono in automatico sul tuo Google Calendar (con qualche ora di ritardo, Google aggiorna i calendari esterni periodicamente); il contrario non avviene mai. Incolla il token una volta — resta solo in questo browser, non viene mai salvato nel codice.
-Token feed calendario
-Copia link feed iCal
+        <!-- RISK -->
+        <div id="view-risk" class="view-section">
+            <div class="card">
+                <h2>🛡️ Risk Management &amp; Burn Rate</h2>
+                <div id="risk-container"></div>
+            </div>
+        </div>
 
-🗓️ Scadenziario Fiscale & Finanziario
-Data
-Descrizione
-Categoria
-Importo
-Stato
-Azioni
+        <!-- REPORT -->
+        <div id="view-report" class="view-section">
+            <div class="card">
+                <h2 class="no-print">
+                    <span>📄 Report Mensile / Trimestrale</span>
+                </h2>
+                <div class="flex-row no-print" style="margin-bottom:12px">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label for="report-month">Mese di riferimento</label>
+                        <input type="month" id="report-month">
+                    </div>
+                    <div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap">
+                        <button class="btn btn-green" id="report-print">Stampa / Salva PDF</button>
+                        <button class="btn btn-ghost" id="report-csv">Esporta CSV</button>
+                        <button class="btn btn-ghost" id="report-backup">Esporta Backup (JSON)</button>
+                    </div>
+                </div>
+                <div id="report-content"></div>
+            </div>
+        </div>
+            </main>
+        </div>
+    </div>
 
+    <!-- MODAL MOVIMENTO -->
+    <div id="txModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3>Movimento Cassa</h3>
+            <form id="tx-form">
+                <div class="form-group"><label>Data</label><input type="date" id="m-date" required></div>
+                <div class="form-group"><label>Descrizione</label><input type="text" id="m-desc" placeholder="Es. Consulenza Extra" required></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Soggetto</label><select id="m-person"><option value="Jo">Jo</option><option value="Eli">Eli</option><option value="Famiglia">Famiglia</option></select></div>
+                    <div class="form-group"><label>Tipo</label><select id="m-type"><option value="ENTRATA">Entrata (+)</option><option value="USCITA">Uscita (-)</option></select></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Conto</label><input type="text" id="m-account" placeholder="Es. Banca della Marca"></div>
+                    <div class="form-group"><label>Categoria (opz.)</label><input type="text" id="m-category" list="category-options" placeholder="Es. Utenze Casa"></div>
+                </div>
+                <datalist id="category-options"></datalist>
+                <div class="form-group"><label>Importo (€)</label><input type="number" step="0.01" min="0" id="m-amount" placeholder="0.00" required></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="txModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-🏛️ Cassetto Fiscale & Forfettario (27%)
-Obbligazioni con categoria "Fisco" nello Scadenziario.
-Obbligazione Fiscale
-Soggetto
-Scadenza
-Importo
+    <!-- MODAL BUDGET -->
+    <div id="budgetModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3>Voce Master Budget</h3>
+            <form id="budget-form">
+                <div class="form-group"><label>Voce di Spesa</label><input type="text" id="b-desc" placeholder="Es. Nuova Spesa" required></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Categoria</label><input type="text" id="b-cat" placeholder="Es. Utenza / Casa"></div>
+                    <div class="form-group"><label>Soggetto</label><select id="b-person"><option value="Famiglia">Famiglia</option><option value="Jo">Jo</option><option value="Eli">Eli</option><option value="Jo & Eli">Jo &amp; Eli</option></select></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Cadenza</label><select id="b-freq"><option value="Mensile">Mensile</option><option value="Annuale (Mensilizzato)">Annuale (Mensilizzato)</option><option value="Settimanale (Mensilizzato)">Settimanale (Mensilizzato)</option></select></div>
+                    <div class="form-group"><label>Importo Mensile Equiv. (€)</label><input type="number" step="0.01" id="b-amount" placeholder="0.00" required></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Giorno Scadenza (opz.)</label><input type="number" min="1" max="31" id="b-dueday"></div>
+                    <div class="form-group" style="display:flex;align-items:flex-end;gap:6px"><label style="margin:0"><input type="checkbox" id="b-active" checked style="width:auto"> Attiva</label></div>
+                </div>
+                <div class="form-group"><label>Capitale Residuo (€, solo per debiti — opz.)</label><input type="number" step="0.01" min="0" id="b-remaining" placeholder="Es. 187400.00"></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="budgetModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
+    <!-- MODAL ENTRATA FISSA -->
+    <div id="incomeModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3>Entrata Fissa Mensile</h3>
+            <form id="income-form">
+                <div class="form-group"><label>Descrizione / Fonte</label><input type="text" id="i-desc" placeholder="Es. Studio Metroquadrato" required></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Soggetto</label><select id="i-person"><option value="Eli">Eli</option><option value="Jo">Jo</option><option value="Famiglia">Famiglia</option></select></div>
+                    <div class="form-group"><label>Cadenza</label><select id="i-freq"><option value="Mensile">Mensile</option></select></div>
+                </div>
+                <div class="form-group"><label>Importo Mensile (€)</label><input type="number" step="0.01" id="i-amount" placeholder="1700.00" required></div>
+                <div class="form-group"><label><input type="checkbox" id="i-active" checked style="width:auto"> Attiva</label></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="incomeModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-⚡ Simulatore Accantonamento 27%
-Importo Fattura Lorda (€):
-INPS Gestione Sep. (22.45%):€ 0,00
-Imposta Sostitutiva 5% (4.31%):€ 0,00
-Totale Accantonato (26.76%):€ 0,00
-📈 Treasury & Working Capital (12 Mesi)
-Proiezione trimestrale rolling da entrate fisse, spese fisse e scadenze.
+    <!-- MODAL SCADENZA -->
+    <div id="scadModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3>Scadenza</h3>
+            <form id="scad-form">
+                <div class="form-group"><label>Data</label><input type="date" id="s-date" required></div>
+                <div class="form-group"><label>Descrizione</label><input type="text" id="s-title" placeholder="Es. F24 / Mutuo" required></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Categoria</label><input type="text" id="s-cat" placeholder="Es. Fisco / Debito"></div>
+                    <div class="form-group"><label>Soggetto</label><select id="s-person"><option value="Famiglia">Famiglia</option><option value="Jo">Jo</option><option value="Eli">Eli</option></select></div>
+                </div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Priorità</label><select id="s-priority"><option value="Bassa">Bassa</option><option value="Media" selected>Media</option><option value="Alta">Alta</option><option value="Critica">Critica</option></select></div>
+                    <div class="form-group"><label>Stato</label><select id="s-status"><option value="Pianificato">Pianificato</option><option value="In Scadenza">In Scadenza</option><option value="Critico">Critico</option><option value="Completato">Completato</option></select></div>
+                </div>
+                <div class="form-group"><label>Importo (€)</label><input type="number" step="0.01" id="s-amount" placeholder="0.00" required></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="scadModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-Trimestre
-Entrate
-Uscite
-Netto
+    <!-- MODAL VERSAMENTO GEMELLE -->
+    <div id="gemModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3 id="gemTitle">Versamento</h3>
+            <form id="gem-form">
+                <div class="form-group"><label>Importo Versato (€)</label><input type="number" step="0.01" min="0.01" id="g-amount" placeholder="350.00" required></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="gemModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Registra Versamento</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
+    <!-- MODAL CAPEX -->
+    <div id="capexModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3>Investimento Capex/PAC</h3>
+            <form id="capex-form">
+                <div class="form-group"><label>Nome</label><input type="text" id="cx-name" placeholder="Es. Trade Republic NASDAQ100" required></div>
+                <div class="form-group"><label>Provider</label><input type="text" id="cx-provider" placeholder="Es. Trade Republic"></div>
+                <div class="form-group"><label>Ticker (opz., per prezzo live)</label><input type="text" id="cx-ticker" placeholder="Es. XNAS.DE"></div>
+                <div class="flex-row">
+                    <div class="form-group"><label id="cx-value-label">Valore Attuale (€)</label><input type="number" step="0.0001" id="cx-value" placeholder="0.00" required></div>
+                    <div class="form-group"><label>PAC Mensile (€, opz.)</label><input type="number" step="0.01" id="cx-contribution" placeholder="50.00"></div>
+                </div>
+                <div class="form-group"><label>Stato</label><select id="cx-status"><option value="active">Attivo</option><option value="paused">In Pausa</option><option value="closed">Chiuso</option></select></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="capexModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-💼 Capex & Asset Allocation + Investimento
-💳 Movimenti Carta + Movimento Carta
-Elenco dei movimenti registrati per ciascuna carta, raggruppati per ciclo (29 del mese - 28 del successivo). Le voci gia' tracciate come scadenza a parte (Klarna, CapCut) restano visibili qui ma non entrano nel totale del ciclo, per non contare la stessa spesa due volte. Il plafond residuo si vede in Risk & Burn.
+    <!-- MODAL VERSAMENTO CAPEX -->
+    <div id="capexDepositModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3 id="capexDepositTitle">Versamento</h3>
+            <form id="capex-deposit-form">
+                <div class="form-group"><label>Importo Versato (€)</label><input type="number" step="0.01" min="0.01" id="cxd-amount" placeholder="50.00" required></div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="capexDepositModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Registra Versamento</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-🛡️ Risk Management & Burn Rate
+    <!-- MODAL MOVIMENTO CARTA -->
+    <div id="cardtxModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3>Movimento Carta</h3>
+            <form id="cardtx-form">
+                <div class="flex-row">
+                    <div class="form-group"><label>Carta</label><select id="ctx-person"><option value="Jo">Jo</option><option value="Eli">Eli</option></select></div>
+                    <div class="form-group"><label>Data</label><input type="date" id="ctx-date" required></div>
+                </div>
+                <div class="form-group"><label>Descrizione</label><input type="text" id="ctx-desc" placeholder="Es. Supermercato" required></div>
+                <div class="flex-row">
+                    <div class="form-group"><label>Importo (€)</label><input type="number" step="0.01" min="0" id="ctx-amount" placeholder="0.00" required></div>
+                    <div class="form-group"><label>Commissioni (€, opz.)</label><input type="number" step="0.01" min="0" id="ctx-fees" placeholder="0.00"></div>
+                </div>
+                <div class="form-group"><label>Categoria (opz.)</label><input type="text" id="ctx-category" list="cardtx-category-options" placeholder="Es. Spesa, Carburante, Abbonamento"></div>
+                <datalist id="cardtx-category-options">
+                    <option value="Spesa"></option>
+                    <option value="Carburante"></option>
+                    <option value="Abbonamento"></option>
+                    <option value="Ristorazione"></option>
+                    <option value="Prelievo Bancomat"></option>
+                    <option value="Lavoro / Tech"></option>
+                </datalist>
+                <div class="form-group" style="display:flex;flex-direction:row;align-items:center;gap:8px">
+                    <input type="checkbox" id="ctx-excluded" style="width:auto">
+                    <label for="ctx-excluded" style="margin:0">Gia' tracciata come scadenza a parte (Klarna, CapCut...) - escludi dal totale del ciclo</label>
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+                    <button type="button" class="btn btn-ghost" data-close="cardtxModal">Annulla</button>
+                    <button type="submit" class="btn btn-green">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-📄 Report Mensile / Trimestrale
-Mese di riferimento
-Stampa / Salva PDF
-Esporta CSV
-Esporta Backup (JSON)
+    <!-- MODAL CONFERMA -->
+    <div id="confirmModal" class="modal-overlay no-print">
+        <div class="modal-content">
+            <h3 id="confirm-title">Conferma</h3>
+            <p id="confirm-message" style="font-size:0.85rem;color:var(--text-muted)"></p>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+                <button type="button" class="btn btn-ghost" id="confirm-cancel">Annulla</button>
+                <button type="button" class="btn btn-red" id="confirm-ok">Conferma</button>
+            </div>
+        </div>
+    </div>
 
-Movimento Cassa
-Data
-Descrizione
-SoggettoJoEliFamiglia
-TipoEntrata (+)Uscita (-)
-Conto
-Categoria (opz.)
-Importo (€)
-Annulla
-Salva
-Voce Master Budget
-Voce di Spesa
-Categoria
-SoggettoFamigliaJoEliJo & Eli
-CadenzaMensileAnnuale (Mensilizzato)Settimanale (Mensilizzato)
-Importo Mensile Equiv. (€)
-Giorno Scadenza (opz.)
-Attiva
-Capitale Residuo (€, solo per debiti — opz.)
-Annulla
-Salva
-Entrata Fissa Mensile
-Descrizione / Fonte
-SoggettoEliJoFamiglia
-CadenzaMensile
-Importo Mensile (€)
-Attiva
-Annulla
-Salva
-Scadenza
-Data
-Descrizione
-Categoria
-SoggettoFamigliaJoEli
-PrioritàBassaMediaAltaCritica
-StatoPianificatoIn ScadenzaCriticoCompletato
-Importo (€)
-Annulla
-Salva
-Versamento
-Importo Versato (€)
-Annulla
-Registra Versamento
-Investimento Capex/PAC
-Nome
-Provider
-Ticker (opz., per prezzo live)
-Valore Attuale (€)
-PAC Mensile (€, opz.)
-StatoAttivoIn PausaChiuso
-Annulla
-Salva
-Versamento
-Importo Versato (€)
-Annulla
-Registra Versamento
-Movimento Carta
-CartaJoEli
-Data
-Descrizione
-Importo (€)
-Commissioni (€, opz.)
-Categoria (opz.)
-
-Gia' tracciata come scadenza a parte (Klarna, CapCut...) - escludi dal totale del ciclo
-Annulla
-Salva
-Conferma
-
-Annulla
-Conferma
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
