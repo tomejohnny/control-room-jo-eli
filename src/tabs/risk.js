@@ -2,31 +2,11 @@ import { getState } from "../lib/store.js";
 import { liquidityMonths, dscr, bankBalance } from "../lib/finance.js";
 import { money, escapeHtml } from "../lib/format.js";
 import { isDeadlinePending } from "../lib/deadline-status.js";
-import { cardPlafondStatus } from "../lib/creditcard.js";
 
-// Plafond carta di credito: 1.500 euro a testa, per ciclo (29 del mese -
-// 28 del mese successivo). Serve soprattutto a Eli, che non ha un'app della
-// banca per controllare la propria carta (il conto e' cointestato ma
-// l'app e' abbinata a una sola persona, e ce l'ha Jo) - qui puo' vedere
-// quanto le resta senza doverlo chiedere.
-const CARD_PLAFOND = 1500;
-const CARDHOLDERS = ["Jo", "Eli"];
-
-function plafondColor(remaining, plafond) {
-  const pct = remaining / plafond;
-  if (pct >= 0.5) return "text-green";
-  if (pct >= 0.2) return "text-amber";
-  return "text-red";
-}
-
-// Stessa soglia di plafondColor, ma come modificatore per la barretta
-// colorata a sinistra della kpi-card (vedi styles.css: .kpi-card.green/.amber/.red)
-function plafondTileClass(remaining, plafond) {
-  const pct = remaining / plafond;
-  if (pct >= 0.5) return "green";
-  if (pct >= 0.2) return "amber";
-  return "red";
-}
+// Il plafond carta di credito (Jo/Eli) e' stato spostato nel tab "Carte" il
+// 01/09/2026: li' convive con l'elenco spese singole per ciclo, quindi ha
+// piu' senso vederlo in quella sezione invece che qui in cima a Risk & Burn,
+// che ora si concentra solo su liquidita'/DSCR/debiti/scadenze critiche.
 
 export function render() {
   const { cashMovements, fixedExpenses, recurringIncome, deadlines } = getState();
@@ -56,34 +36,12 @@ export function render() {
     (d.status === "Critico" || d.priority === "Critica" || d.priority === "Alta" || d.zero_margin_risk)
   );
 
-  const plafondStatuses = CARDHOLDERS.map(person => ({
-    person,
-    ...cardPlafondStatus(deadlines, person, CARD_PLAFOND),
-  }));
-  const cycleLabel = plafondStatuses.length
-    ? `${plafondStatuses[0].cycleStart.toLocaleDateString("it-IT", { day: "numeric", month: "short" })} - ${plafondStatuses[0].cycleEnd.toLocaleDateString("it-IT", { day: "numeric", month: "short" })}`
-    : "";
-
-  // Le carte vanno per prime: sono il dato che Jo ed Eli controllano piu'
-  // spesso (soprattutto Eli, che non ha l'app della banca) e su schermi
-  // larghi restavano in fondo alla pagina dentro una tabella stretta a due
-  // colonne che lasciava mezzo schermo vuoto a destra. Qui e piu' sotto si
-  // riusano le kpi-card gia' definite in styles.css (stesse della barra in
-  // cima a ogni pagina): sono un grid responsive che si allarga da solo
-  // invece di una tabella a larghezza fissa.
+  // Le kpi-card sono le stesse gia' definite in styles.css (usate anche nella
+  // barra in cima a ogni pagina): un grid responsive che si allarga da solo
+  // invece di una tabella a larghezza fissa - risolve lo spazio vuoto che
+  // restava su schermi larghi con la vecchia tabella a due colonne.
   const container = document.getElementById("risk-container");
   container.innerHTML = `
-    <h3 style="font-size:0.85rem;margin:0 0 10px;color:var(--text-muted)">Plafond Carta di Credito - ciclo ${escapeHtml(cycleLabel)}</h3>
-    <div class="grid-kpi" style="margin-bottom:6px">
-      ${plafondStatuses.map(p => `
-        <div class="kpi-card ${plafondTileClass(p.remaining, p.plafond)}">
-          <div class="kpi-title">${escapeHtml(p.person)} - Disponibile</div>
-          <div class="kpi-value ${plafondColor(p.remaining, p.plafond)}">${money(p.remaining)}</div>
-          <div class="kpi-sub">Usati ${money(p.used)} di ${money(p.plafond)}</div>
-        </div>`).join("")}
-    </div>
-    <p class="hint" style="margin-bottom:24px">Aggiornato in base alle spese carta registrate in Control Room - se non hai ancora mandato le ultime spese, il numero qui puo' essere piu' alto di quello reale.</p>
-
     <h3 style="font-size:0.85rem;margin:0 0 10px;color:var(--text-muted)">Liquidità e Copertura Debiti</h3>
     <div class="grid-kpi">
       <div class="kpi-card ${months == null ? "" : months >= 3 ? "green" : "red"}">
@@ -110,7 +68,7 @@ export function render() {
 
     ${critical.length ? `
       <h3 style="font-size:0.85rem;margin:24px 0 10px;color:var(--text-muted)">Scadenze ad alta priorità  non completate</h3>
-      <div class="mobile-cards-container" style="display:flex">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px">
         ${critical.map(d => `<div class="m-card"><div class="m-card-header"><span class="m-card-title">${escapeHtml(d.title)}</span><span class="m-card-amount text-red">${money(d.amount)}</span></div><div style="font-size:0.75rem;color:var(--text-muted)">${escapeHtml(d.due_date)} - ${escapeHtml(d.status)}</div></div>`).join("")}
       </div>` : ""}
   `;
