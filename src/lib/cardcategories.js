@@ -14,6 +14,10 @@
 const MERCHANT_RULES = [
   { match: "IMPOSTA DI BOLLO", category: "Imposta di bollo" },
   { match: "KLARNA", category: "Klarna (tracciato altrove)", excluded: true },
+  // Categoria "Utenze" creata il 02/09/2026 su richiesta di Jo (distinta da
+  // "Casa", finora usata solo per Bricoio/casa) - Mooney e' il processore che
+  // gestisce i pagamenti pagoPA (es. bollette Enel) passati su PayPal.
+  { match: "MOONEY", category: "Utenze" },
   { match: "CAPCUT", category: "Abbonamento (tracciato altrove)", excluded: true },
   { match: "PAYPAL *GOOGLE GOOGLE", category: "Abb Gemini", excluded: true },
   { match: "GOOGLE ONE", category: "Lavoro / Tech" },
