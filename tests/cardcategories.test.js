@@ -22,6 +22,11 @@ test("guessCategory: CapCut suggerisce anche escluso dal ciclo", () => {
   assert.deepEqual(g, { category: "Abbonamento (tracciato altrove)", excluded: true });
 });
 
+test("guessCategory: Mooney (bollettini/pagoPA) va sotto Utenze, non escluso dal ciclo", () => {
+  const g = guessCategory("PAYPAL *MOONEY Milano ITA");
+  assert.deepEqual(g, { category: "Utenze", excluded: false });
+});
+
 test("guessCategory: un esercente mai visto prima non produce alcun suggerimento", () => {
   assert.equal(guessCategory("ESERCENTE SCONOSCIUTO XYZ ITA"), null);
 });
