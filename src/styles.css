@@ -262,6 +262,47 @@ h1, h2, .brand-name, .login-box h1 { font-family: "Cormorant Garamond", Georgia,
   .topbar, .content { padding-left: 16px; padding-right: 16px; }
 }
 
+/* ---------- Tab Analisi (Dove Va il Denaro): barre orizzontali per
+   categoria e meter dei PAC. Palette categoriale a hue fissa (mai ciclata
+   per rango, vedi dataviz skill) - le 8 variabili --bar-hue-* sono definite
+   una volta qui e riusate in ordine di importo dentro src/tabs/analysis.js,
+   cosi' la barra piu' grande e' sempre la piu' "calda" a vedersi invece di
+   dipendere dal nome della categoria. ---------- */
+.bar-list { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: minmax(120px, 200px) 1fr auto; align-items: center; gap: 12px; }
+.bar-row-label { font-size: 0.8rem; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row-track { background: var(--bg-card); border-radius: 6px; height: 20px; overflow: hidden; }
+.bar-row-fill { height: 100%; border-radius: 6px; min-width: 2px; transition: width 0.3s ease; }
+.bar-row-value { font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; min-width: 128px; }
+.bar-row-pct { font-size: 0.7rem; font-weight: 500; color: var(--text-muted); }
+
+/* Valori dalla palette categoriale validata dataviz (references/palette.md,
+   colonna "Light") - ordine fisso di hue, mai ciclato per rango. */
+.bar-hue-blue { background: #2a78d6; }
+.bar-hue-orange { background: #eb6834; }
+.bar-hue-aqua { background: #1baf7a; }
+.bar-hue-yellow { background: #eda100; }
+.bar-hue-magenta { background: #e87ba4; }
+.bar-hue-green { background: #008300; }
+.bar-hue-violet { background: #4a3aa7; }
+.bar-hue-red { background: #e34948; }
+
+@media (max-width: 600px) {
+  .bar-row { grid-template-columns: 1fr; gap: 4px; }
+  .bar-row-value { text-align: left; min-width: 0; }
+}
+
+.pac-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.pac-meter { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; }
+.pac-meter.pac-complete { border-color: var(--accent-green); }
+.pac-meter-header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.pac-meter-name { font-size: 0.85rem; font-weight: 700; }
+.pac-meter-status { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
+.pac-complete .pac-meter-status { color: var(--accent-green); font-weight: 700; }
+.pac-meter-track { background: var(--bg-secondary); border-radius: 6px; height: 10px; overflow: hidden; }
+.pac-meter-fill { height: 100%; border-radius: 6px; background: var(--accent-green); transition: width 0.3s ease; }
+.pac-meter-figures { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; font-variant-numeric: tabular-nums; }
+
 @media print {
   .no-print { display: none !important; }
   body { background: #fff; }
