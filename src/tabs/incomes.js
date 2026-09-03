@@ -30,10 +30,19 @@ export function render() {
     const color = badgeColor(inc.subject);
     const rowClass = inc.active === false ? "inactive-row" : "";
 
+    // Le righe con active=false restano visibili (non cancellano lo storico
+    // dell'utente, riattivabili con "Modifica") ma non contano nel totale -
+    // vedi filtro sopra. L'opacita' ridotta da sola era troppo sottile per
+    // accorgersene scorrendo la lista a colpo d'occhio (segnalato da Jo il
+    // 03/09/2026 dopo un conteggio manuale che le includeva per errore), quindi
+    // ora c'e' anche un'etichetta esplicita, stesso pattern di card.js per le
+    // voci escluse dal ciclo carta.
+    const inactiveNote = inc.active === false ? ` <span class="hint">(inattiva - esclusa dal totale)</span>` : "";
+
     const tr = document.createElement("tr");
     tr.className = rowClass;
     tr.innerHTML = `
-      <td><strong>${escapeHtml(inc.description)}</strong></td>
+      <td><strong>${escapeHtml(inc.description)}</strong>${inactiveNote}</td>
       <td><span class="badge" style="background:${color}">${escapeHtml(inc.subject)}</span></td>
       <td>${escapeHtml(inc.frequency)}</td>
       <td class="amount text-green" style="text-align:right">${money(inc.monthly_amount)}</td>
@@ -51,6 +60,7 @@ export function render() {
         <span class="m-card-amount text-green">${money(inc.monthly_amount)}</span>
       </div>
       <div style="font-size:0.75rem;color:var(--text-muted)">Cadenza: ${escapeHtml(inc.frequency)}</div>
+      ${inactiveNote ? `<div class="hint">Inattiva - esclusa dal totale</div>` : ""}
       <div class="m-card-details">
         <span class="badge" style="background:${color}">${escapeHtml(inc.subject)}</span>
         <div style="display:flex;gap:6px">

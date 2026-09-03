@@ -9,6 +9,7 @@ const state = {
   investments: [],
   investmentTransactions: [],
   cardTransactions: [],
+  bankTransactions: [],
 };
 
 export function getState() {
@@ -16,7 +17,7 @@ export function getState() {
 }
 
 export async function loadAll() {
-  const [cashMovements, fixedExpenses, budgets, recurringIncome, deadlines, investments, investmentTransactions, cardTransactions] = await Promise.all([
+  const [cashMovements, fixedExpenses, budgets, recurringIncome, deadlines, investments, investmentTransactions, cardTransactions, bankTransactions] = await Promise.all([
     listRows("cash_movements", { orderBy: "movement_date", ascending: false }),
     listRows("fixed_expenses", { orderBy: "description" }),
     listRows("budgets", { orderBy: "category" }),
@@ -25,6 +26,7 @@ export async function loadAll() {
     listRows("investments", { orderBy: "name" }),
     listRows("investment_transactions", { orderBy: "transaction_date", ascending: false }),
     listRows("card_transactions", { orderBy: "purchase_date", ascending: false }),
+    listRows("bank_transactions", { orderBy: "transaction_date", ascending: false }),
   ]);
   state.cashMovements = cashMovements;
   state.fixedExpenses = fixedExpenses;
@@ -34,5 +36,6 @@ export async function loadAll() {
   state.investments = investments;
   state.investmentTransactions = investmentTransactions;
   state.cardTransactions = cardTransactions;
+  state.bankTransactions = bankTransactions;
   return state;
 }

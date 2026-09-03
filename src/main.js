@@ -17,6 +17,7 @@ import { render as renderFisco, initFisco } from "./tabs/fisco.js";
 import { render as renderTreasury } from "./tabs/treasury.js";
 import { render as renderCapex, initCapex } from "./tabs/capex.js";
 import { render as renderCards, initCards } from "./tabs/cards.js";
+import { render as renderBankHistory, initBankHistory } from "./tabs/bankhistory.js";
 import { render as renderAnalysis } from "./tabs/analysis.js";
 import { render as renderRisk } from "./tabs/risk.js";
 import { render as renderReport, initReport } from "./tabs/report.js";
@@ -33,6 +34,7 @@ const PAGE_TITLES = {
   treasury: ["Treasury", "Proiezione trimestrale a 12 mesi"],
   capex: ["Capex & PAC", "Investimenti e piani di accumulo"],
   cards: ["Carte", "Movimenti carta di Jo ed Eli, per ciclo"],
+  bankhistory: ["Storico Conto Corrente", "Consultazione di sola lettura dei movimenti storici"],
   analysis: ["Dove Va il Denaro", "Fotografia della spesa familiare e dove risparmiare"],
   risk: ["Risk & Burn", "Liquidità, DSCR e rischio a breve"],
   report: ["Report", "Riepilogo mensile e trimestrale esportabile"],
@@ -48,6 +50,7 @@ function renderAll() {
   renderTreasury();
   renderCapex();
   renderCards();
+  renderBankHistory();
   renderAnalysis();
   renderRisk();
   renderReport();
@@ -107,6 +110,7 @@ async function bootstrap(user) {
     initFisco();
     initCapex();
     initCards();
+    initBankHistory();
     initReport();
     initConfirm();
     wireModals();

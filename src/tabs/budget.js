@@ -33,11 +33,14 @@ export function render() {
     const cardBadge = b.paid_by_card
       ? `<span class="badge" style="background:var(--text-muted)" title="Pagato con carta di credito: nessun movimento mensile separato, l'impatto di cassa e' nella liquidazione del ciclo carta">Carta</span>`
       : "";
+    // Vedi nota identica in incomes.js: opacita' da sola era troppo sottile,
+    // ora anche etichetta esplicita (stesso pattern di cards.js).
+    const inactiveNote = b.active === false ? ` <span class="hint">(inattiva - esclusa dal totale)</span>` : "";
 
     const tr = document.createElement("tr");
     tr.className = rowClass;
     tr.innerHTML = `
-      <td><strong>${escapeHtml(b.description)}</strong></td>
+      <td><strong>${escapeHtml(b.description)}</strong>${inactiveNote}</td>
       <td>${escapeHtml(b.category)}</td>
       <td><span class="badge" style="background:${color}">${escapeHtml(b.subject)}</span> ${cardBadge}</td>
       <td>${escapeHtml(b.frequency)}</td>
@@ -56,6 +59,7 @@ export function render() {
         <span class="m-card-amount text-red">${money(b.amount)}</span>
       </div>
       <div style="font-size:0.75rem;color:var(--text-muted)">Cat: <strong>${escapeHtml(b.category)}</strong> | Cadenza: ${escapeHtml(b.frequency)}</div>
+      ${inactiveNote ? `<div class="hint">Inattiva - esclusa dal totale</div>` : ""}
       <div class="m-card-details">
         <span class="badge" style="background:${color}">${escapeHtml(b.subject)}</span> ${cardBadge}
         <div style="display:flex;gap:6px">

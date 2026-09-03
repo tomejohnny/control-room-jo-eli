@@ -43,6 +43,7 @@
                 <button class="nav-btn" data-view="treasury"><span class="icon">📈</span> Treasury</button>
                 <button class="nav-btn" data-view="capex"><span class="icon">💼</span> Capex &amp; PAC</button>
                 <button class="nav-btn" data-view="cards"><span class="icon">💳</span> Carte</button>
+                <button class="nav-btn" data-view="bankhistory"><span class="icon">🏦</span> Storico C/C</button>
                 <button class="nav-btn" data-view="analysis"><span class="icon">🧭</span> Dove Va il Denaro</button>
                 <button class="nav-btn" data-view="risk"><span class="icon">🛡️</span> Risk &amp; Burn</button>
                 <button class="nav-btn" data-view="report"><span class="icon">📄</span> Report</button>
@@ -303,6 +304,31 @@
                 </h2>
                 <p class="hint">Elenco dei movimenti registrati per ciascuna carta, raggruppati per ciclo (29 del mese - 28 del successivo). Le voci gia' tracciate come scadenza a parte (Klarna, CapCut) restano visibili qui ma non entrano nel totale del ciclo, per non contare la stessa spesa due volte. Il plafond residuo si vede in Risk &amp; Burn.</p>
                 <div id="cards-container"></div>
+            </div>
+        </div>
+
+        <!-- STORICO CONTO CORRENTE -->
+        <div id="view-bankhistory" class="view-section">
+            <div class="card">
+                <h2>🏦 Storico Conto Corrente</h2>
+                <p class="hint">Consultazione di sola lettura dei movimenti storici del conto corrente (dataset separato da Cash Flow Consolidato, popolato a parte per analisi storiche). Le voci gia' tracciate altrove (es. liquidazioni carta di credito) restano visibili ma non entrano nei totali sotto, per non contare la stessa spesa due volte.</p>
+                <div class="flex-row" style="margin-bottom:10px">
+                    <input id="bh-search" placeholder="Cerca descrizione o categoria">
+                    <input id="bh-month" type="month">
+                </div>
+                <div class="flex-row" style="margin-bottom:10px">
+                    <select id="bh-type"><option value="">Tutti i tipi</option><option value="ENTRATA">Entrata</option><option value="USCITA">Uscita</option></select>
+                    <select id="bh-category"><option value="">Tutte le categorie</option></select>
+                    <button class="btn btn-ghost" id="bh-reset">Azzera filtri</button>
+                </div>
+                <div id="bh-summary" style="font-size:0.75rem;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px"></div>
+                <table class="desktop-table">
+                    <thead>
+                        <tr><th>Data</th><th>Descrizione</th><th>Categoria</th><th style="text-align:right">Importo</th></tr>
+                    </thead>
+                    <tbody id="bh-table-body"></tbody>
+                </table>
+                <div id="bh-mobile" class="mobile-cards-container"></div>
             </div>
         </div>
 
