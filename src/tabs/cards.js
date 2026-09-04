@@ -8,6 +8,8 @@ import { confirmDialog } from "../lib/confirm.js";
 import { groupTransactionsByCycle } from "../lib/cardtransactions.js";
 import { cardPlafondStatus, plafondColor, plafondTileClass } from "../lib/creditcard.js";
 import { guessCategory } from "../lib/cardcategories.js";
+import { CARD_CATEGORIES } from "../lib/categories.js";
+import { initCombobox } from "../lib/combobox.js";
 
 const TABLE = "card_transactions";
 const CARDHOLDERS = ["Jo", "Eli"];
@@ -22,6 +24,7 @@ let editingId = null;
 // aggiornato o svuotato in autonomia) oppure un valore scritto a mano da Jo
 // (che non va mai sovrascritto).
 let lastSuggestedCategory = null;
+let categoryCombobox = null;
 
 function fmtDate(d) {
   return d.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
@@ -149,6 +152,7 @@ function resetForm() {
   lastSuggestedCategory = null;
   document.getElementById("cardtx-form").reset();
   document.getElementById("ctx-date").value = todayIso();
+  categoryCombobox.setValue("");
 }
 
 function onEdit(id) {
@@ -161,7 +165,13 @@ function onEdit(id) {
   document.getElementById("ctx-desc").value = t.description;
   document.getElementById("ctx-amount").value = t.amount;
   document.getElementById("ctx-fees").value = t.fees || "";
-  document.getElementById("ctx-category").value = t.category || "";
+  // Se la categoria salvata non e' (piu') tra quelle canoniche (es. una
+  // riga storica "Da categorizzare" o su un nome ormai fuori tassonomia),
+  // il combobox la mostra ma non la conferma: va scelta di nuovo prima di
+  // poter salvare, invece di lasciar passare un valore che il resto
+  // dell'app non riconosce piu' - proprio il flusso di categorizzazione
+  // richiesto da Jo il 04/09/2026.
+  categoryCombobox.setValue(t.category || "");
   document.getElementById("ctx-excluded").checked = !!t.excluded_from_cycle;
   openModal("cardtxModal");
 }
@@ -169,24 +179,25 @@ function onEdit(id) {
 // Autocompila categoria (ed escluso dal ciclo, se pertinente) mentre Jo
 // digita la descrizione, riconoscendo l'esercente da MERCHANT_RULES (vedi
 // cardcategories.js, costruita dalle categorie che Jo ha gia' assegnato a
-// mano). Non tocca mai un valore scritto a mano: aggiorna/svuota solo se il
-// campo categoria e' vuoto o contiene ancora l'ultimo suggerimento nostro -
-// e non smarca mai da solo "escluso dal ciclo", solo lo marca quando serve.
+// mano, riallineata alla tassonomia canonica il 04/09/2026). Non tocca mai
+// un valore scelto a mano: aggiorna/svuota solo se il campo categoria e'
+// vuoto o contiene ancora l'ultimo suggerimento nostro - e non smarca mai
+// da solo "escluso dal ciclo", solo lo marca quando serve.
 function onDescInput() {
   const descField = document.getElementById("ctx-desc");
-  const catField = document.getElementById("ctx-category");
+  const catInput = document.getElementById("ctx-category-input");
   const exclField = document.getElementById("ctx-excluded");
-  const current = catField.value.trim();
+  const current = catInput.value.trim();
   const guess = guessCategory(descField.value);
 
   if (guess) {
     if (current === "" || current === lastSuggestedCategory) {
-      catField.value = guess.category;
+      categoryCombobox.setValue(guess.category);
       lastSuggestedCategory = guess.category;
     }
     if (guess.excluded) exclField.checked = true;
   } else if (current !== "" && current === lastSuggestedCategory) {
-    catField.value = "";
+    categoryCombobox.setValue("");
     lastSuggestedCategory = null;
   }
 }
@@ -235,4 +246,10 @@ export function initCards() {
   document.getElementById("cardtx-form").addEventListener("submit", onSubmit);
   document.querySelector('[data-open-modal="cardtxModal"]').addEventListener("click", resetForm);
   document.getElementById("ctx-desc").addEventListener("input", onDescInput);
+  categoryCombobox = initCombobox({
+    input: document.getElementById("ctx-category-input"),
+    hiddenInput: document.getElementById("ctx-category"),
+    list: document.getElementById("ctx-category-list"),
+    options: CARD_CATEGORIES,
+  });
 }

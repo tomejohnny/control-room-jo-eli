@@ -1,62 +1,63 @@
 // Suggerimento automatico di categoria in base all'emittente/descrizione del
 // movimento carta. Costruito il 01/09/2026 a partire dalle categorie che Jo
-// ha assegnato a mano a tutti i 78 movimenti storici in `card_transactions`
-// (query diretta su Supabase, non inventato) - riusa lo stesso nome di
-// categoria che Jo ha gia' scelto per ciascun esercente, cosi' i nuovi
-// movimenti che manda in futuro si autocompilano da soli nella maggior parte
-// dei casi. Ordine dal piu' specifico al piu' generico: un match precoce
-// vince, quindi le stringhe piu' particolari (nomi di negozio) stanno prima
-// delle parole generiche.
+// ha assegnato a mano ai movimenti storici in `card_transactions`, poi
+// riallineato il 04/09/2026 alla tassonomia canonica di categories.js (Jo ha
+// unificato le categorie carta con quelle del Master Budget: i vecchi nomi
+// come "Spesa", "Carburante", "Svago" non esistono piu'). Ordine dal piu'
+// specifico al piu' generico: un match precoce vince, quindi le stringhe
+// piu' particolari (nomi di negozio) stanno prima delle parole generiche.
 //
 // `excluded: true` significa che quell'esercente e' gia' tracciato altrove
-// (Klarna, CapCut, Abbonamenti Gemini, Wind) - il suggerimento pre-spunta
-// anche la casella "escluso dal ciclo" nel form, non solo la categoria.
+// (Klarna, CapCut, Google Gemini, Wind) - il suggerimento pre-spunta anche
+// la casella "escluso dal ciclo" nel form, non solo la categoria.
+//
+// MOONEY e IMPOSTA DI BOLLO erano nell'elenco storico ma non hanno un
+// corrispettivo canonico non ambiguo (Mooney processa qualsiasi bolletta
+// pagoPA - potrebbe essere Enel, Acqua o Rifiuti a seconda del caso; Imposta
+// di bollo non e' ne' una spesa reale ne' una delle 4 voci amministrative) -
+// rimossi dal suggerimento automatico finche' Jo non decide dove mapparli,
+// invece di indovinare e proporre una categoria sbagliata.
 const MERCHANT_RULES = [
-  { match: "IMPOSTA DI BOLLO", category: "Imposta di bollo" },
-  { match: "KLARNA", category: "Klarna (tracciato altrove)", excluded: true },
-  // Categoria "Utenze" creata il 02/09/2026 su richiesta di Jo (distinta da
-  // "Casa", finora usata solo per Bricoio/casa) - Mooney e' il processore che
-  // gestisce i pagamenti pagoPA (es. bollette Enel) passati su PayPal.
-  { match: "MOONEY", category: "Utenze" },
+  { match: "KLARNA", category: "Debito / Klarna (tracciato altrove)", excluded: true },
   { match: "CAPCUT", category: "Abbonamento (tracciato altrove)", excluded: true },
-  { match: "PAYPAL *GOOGLE GOOGLE", category: "Abb Gemini", excluded: true },
-  { match: "GOOGLE ONE", category: "Lavoro / Tech" },
-  { match: "APPLE.COM/BILL", category: "Abbonamento" },
-  { match: "MO* APPLE", category: "Abbonamento" },
-  { match: "SKY ITALIA", category: "Abbonamento" },
-  { match: "AMAZON MUSIC", category: "Abbonamento" },
-  { match: "SEGUSINO N.C. OUTLET", category: "Abbigliamento Jo" },
-  { match: "CARLO ALIPRANDI CARBUR", category: "Carburante" },
-  { match: "DISTRIBUTORE BIOIL", category: "Carburante" },
-  { match: "SERV ENI", category: "Carburante" },
-  { match: "TERMOVENETA", category: "Carburante" },
-  { match: "BRICOIO", category: "Casa" },
-  { match: "ADOBE", category: "Lavoro / Tech" },
-  { match: "CANVA", category: "Lavoro / Tech" },
-  { match: "CLOUDFLARE", category: "Lavoro / Tech" },
-  { match: "CLAUDE PRO", category: "Lavoro / Tech" },
-  { match: "DALL'ARCHE MIRELLA", category: "Parrucchiera" },
-  { match: "ASPIT", category: "Pedaggi" },
+  { match: "PAYPAL *GOOGLE GOOGLE", category: "Abbonamento (tracciato altrove)", excluded: true },
+  { match: "PRODOTTI SERVIZI WINDT", category: "Abbonamento (tracciato altrove)", excluded: true },
+  { match: "GOOGLE ONE", category: "Lavoro/Tech - Spese Variabili" },
+  { match: "APPLE.COM/BILL", category: "Lavoro/Tech - Spese Variabili" },
+  { match: "MO* APPLE", category: "Lavoro/Tech - Spese Variabili" },
+  { match: "ADOBE", category: "Lavoro/Tech - Spese Variabili" },
+  { match: "CANVA", category: "Lavoro/Tech - Spese Variabili" },
+  { match: "CLOUDFLARE", category: "Lavoro/Tech - Spese Variabili" },
+  { match: "CLAUDE PRO", category: "Lavoro/Tech - Spese Variabili" },
+  { match: "SKY ITALIA", category: "Svago & Tempo Libero" },
+  { match: "AMAZON MUSIC", category: "Svago & Tempo Libero" },
+  { match: "46688 FOLLINA", category: "Svago & Tempo Libero" },
+  { match: "BIRRIFICIO", category: "Svago & Tempo Libero" },
+  { match: "CARIBE BAY", category: "Svago & Tempo Libero" },
+  { match: "GELATERIA", category: "Svago & Tempo Libero" },
+  { match: "IL VENTENNALE", category: "Svago & Tempo Libero" },
+  { match: "MIHALI ILIUT RAZVAN", category: "Svago & Tempo Libero" },
+  { match: "MUSICARTE", category: "Svago & Tempo Libero" },
+  { match: "PIZZETTERIA", category: "Svago & Tempo Libero" },
+  { match: "SEGUSINO N.C. OUTLET", category: "Abbigliamento" },
+  { match: "CARLO ALIPRANDI CARBUR", category: "Mobilità" },
+  { match: "DISTRIBUTORE BIOIL", category: "Mobilità" },
+  { match: "SERV ENI", category: "Mobilità" },
+  { match: "TERMOVENETA", category: "Mobilità" },
+  { match: "ASPIT", category: "Mobilità" },
+  { match: "BRICOIO", category: "Casa - Manutenzione Ordinaria & Beni" },
+  { match: "DALL'ARCHE MIRELLA", category: "Cura Personale" },
   { match: "BANCA DELLA MARCA", category: "Prelievo Bancomat" },
   { match: "FARMACIA", category: "Salute" },
-  { match: "EMISFERO", category: "Spesa" },
-  { match: "ALDI", category: "Spesa" },
-  { match: "GLOBAL INGROSS", category: "Spesa" },
-  { match: "LE CARNI COLOMBEROTTO", category: "Spesa" },
-  { match: "LIDL", category: "Spesa" },
-  { match: "MACELLERIA", category: "Spesa" },
-  { match: "NEG 0448", category: "Spesa" },
-  { match: "ORTOFRUTTA", category: "Spesa" },
-  { match: "SUPERMERCATO", category: "Spesa" },
-  { match: "46688 FOLLINA", category: "Svago" },
-  { match: "BIRRIFICIO", category: "Svago" },
-  { match: "CARIBE BAY", category: "Svago" },
-  { match: "GELATERIA", category: "Svago" },
-  { match: "IL VENTENNALE", category: "Svago" },
-  { match: "MIHALI ILIUT RAZVAN", category: "Svago" },
-  { match: "MUSICARTE", category: "Svago" },
-  { match: "PIZZETTERIA", category: "Svago" },
-  { match: "PRODOTTI SERVIZI WINDT", category: "Telefonia Eli", excluded: true },
+  { match: "EMISFERO", category: "Alimentari & Casa" },
+  { match: "ALDI", category: "Alimentari & Casa" },
+  { match: "GLOBAL INGROSS", category: "Alimentari & Casa" },
+  { match: "LE CARNI COLOMBEROTTO", category: "Alimentari & Casa" },
+  { match: "LIDL", category: "Alimentari & Casa" },
+  { match: "MACELLERIA", category: "Alimentari & Casa" },
+  { match: "NEG 0448", category: "Alimentari & Casa" },
+  { match: "ORTOFRUTTA", category: "Alimentari & Casa" },
+  { match: "SUPERMERCATO", category: "Alimentari & Casa" },
 ];
 
 // Ritorna { category, excluded } se un esercente noto viene riconosciuto

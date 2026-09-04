@@ -532,15 +532,14 @@
                     <div class="form-group"><label>Importo (€)</label><input type="number" step="0.01" min="0" id="ctx-amount" placeholder="0.00" required></div>
                     <div class="form-group"><label>Commissioni (€, opz.)</label><input type="number" step="0.01" min="0" id="ctx-fees" placeholder="0.00"></div>
                 </div>
-                <div class="form-group"><label>Categoria (opz.)</label><input type="text" id="ctx-category" list="cardtx-category-options" placeholder="Es. Spesa, Carburante, Abbonamento"></div>
-                <datalist id="cardtx-category-options">
-                    <option value="Spesa"></option>
-                    <option value="Carburante"></option>
-                    <option value="Abbonamento"></option>
-                    <option value="Ristorazione"></option>
-                    <option value="Prelievo Bancomat"></option>
-                    <option value="Lavoro / Tech"></option>
-                </datalist>
+                <div class="form-group">
+                    <label>Categoria (opz.)</label>
+                    <div class="combobox">
+                        <input type="text" id="ctx-category-input" autocomplete="off" placeholder="Cerca una categoria...">
+                        <input type="hidden" id="ctx-category">
+                        <ul id="ctx-category-list" class="combobox-list"></ul>
+                    </div>
+                </div>
                 <div class="form-group" style="display:flex;flex-direction:row;align-items:center;gap:8px">
                     <input type="checkbox" id="ctx-excluded" style="width:auto">
                     <label for="ctx-excluded" style="margin:0">Gia' tracciata come scadenza a parte (Klarna, CapCut...) - escludi dal totale del ciclo</label>
