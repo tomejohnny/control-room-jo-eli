@@ -3,6 +3,7 @@ import {
   quarterlyTreasury, bankBalance, monthEndMargin, dscr, liquidityMonths,
   totalMonthlyFixedExpenses, totalMonthlyIncome, monthlyEquivalentAmount,
 } from "../lib/finance.js";
+import { variabileStimatoConsuntivo } from "../lib/budgetActual.js";
 import { money, escapeHtml, todayIso } from "../lib/format.js";
 
 function selectedMonth() {
@@ -55,7 +56,7 @@ function kvRows(rows) {
 
 export function render() {
   const month = selectedMonth();
-  const { cashMovements, fixedExpenses, recurringIncome, deadlines } = getState();
+  const { cashMovements, fixedExpenses, recurringIncome, deadlines, budgets, cardTransactions } = getState();
 
   const monthMovements = cashMovements.filter(m => inMonth(m.movement_date, month));
   const income = monthMovements.filter(m => m.movement_type === "ENTRATA").reduce((s, m) => s + Number(m.amount || 0), 0);
@@ -73,6 +74,14 @@ export function render() {
   const budgetTotal = totalMonthlyFixedExpenses(fixedExpenses);
   const incomeTotal = totalMonthlyIncome(recurringIncome);
   const budgetRows = budgetVsSpesoRows(fixedExpenses, monthMovements);
+
+  // Variabile Stimato vs Consuntivo (movimenti carta, non cash_movements):
+  // stesso calcolo dal vivo di budget.js/Master Budget - vedi budgetActual.js.
+  // Solo le righe budgets del mese selezionato hanno senso qui: un mese senza
+  // budget compilato mostra la sezione vuota invece di un confronto fasullo.
+  const variabileRows = budgets.filter(b => b.tier === "Variabile Stimato" && b.period === month);
+  const variabileComputed = variabileStimatoConsuntivo(variabileRows, cardTransactions, month);
+  const isCurrentMonth = month === todayIso().slice(0, 7);
 
   document.getElementById("report-content").innerHTML = `
     <h3>Situazione Attuale (oggi)</h3>
@@ -123,6 +132,39 @@ export function render() {
       </div>
       <p class="hint">"Speso" conta solo i movimenti confermati con categoria assegnata (menu Movimento → Categoria). I movimenti "Da confermare" non sono inclusi finché non li confermi.</p>
       ` : `<p class="hint">Nessun budget o movimento categorizzato per questo mese.</p>`}
+
+    <h3>Variabile Stimato: Stimato vs Consuntivo — ${escapeHtml(month)}</h3>
+    ${isCurrentMonth ? `<p class="hint">Consuntivo parziale - mese in corso, non tutte le spese del mese sono ancora avvenute.</p>` : ""}
+    ${variabileComputed.length ? `
+      <table class="desktop-table">
+        <thead><tr><th>Categoria</th><th style="text-align:right">Stimato</th><th style="text-align:right">Consuntivo</th><th style="text-align:right">Scostamento</th></tr></thead>
+        <tbody>${variabileComputed.map(r => {
+          const overBudget = r.scostamento > 0;
+          const scostamentoLabel = r.scostamentoPct == null
+            ? money(r.scostamento)
+            : `${money(r.scostamento)} (${r.scostamento >= 0 ? "+" : ""}${r.scostamentoPct.toFixed(0)}%)`;
+          return `<tr><td>${escapeHtml(r.category)}</td><td class="amount" style="text-align:right">${money(r.stimato)}</td><td class="amount" style="text-align:right">${money(r.consuntivo)}</td><td class="amount ${overBudget ? "text-red" : "text-green"}" style="text-align:right">${scostamentoLabel}</td></tr>`;
+        }).join("")}</tbody>
+      </table>
+      <div class="mobile-cards-container">
+        ${variabileComputed.map(r => {
+          const overBudget = r.scostamento > 0;
+          const scostamentoLabel = r.scostamentoPct == null
+            ? money(r.scostamento)
+            : `${money(r.scostamento)} (${r.scostamento >= 0 ? "+" : ""}${r.scostamentoPct.toFixed(0)}%)`;
+          return `<div class="m-card">
+            <div class="m-card-header">
+              <span class="m-card-title">${escapeHtml(r.category)}</span>
+              <span class="m-card-amount ${overBudget ? "text-red" : "text-green"}">${scostamentoLabel}</span>
+            </div>
+            <div class="m-card-details">
+              <span>Stimato: ${money(r.stimato)}</span>
+              <span>Consuntivo: ${money(r.consuntivo)}</span>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+      ` : `<p class="hint">Nessuna voce Variabile Stimato per questo mese.</p>`}
 
     <h3>Scadenze nel Mese</h3>
     ${monthDeadlines.length ? `
