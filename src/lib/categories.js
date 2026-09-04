@@ -31,6 +31,7 @@ export const AMMINISTRATIVE_CATEGORIES = [
   "Debito / Klarna (tracciato altrove)",
   "Debito / PayPal Paga3",
   "Abbonamento (tracciato altrove)",
+  "Commissioni Bancarie e Bollo",
 ];
 
 export const CARD_CATEGORIES = [...SPESA_REALE_CATEGORIES, ...AMMINISTRATIVE_CATEGORIES];

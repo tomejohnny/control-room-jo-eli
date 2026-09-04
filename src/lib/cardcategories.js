@@ -11,13 +11,14 @@
 // (Klarna, CapCut, Google Gemini, Wind) - il suggerimento pre-spunta anche
 // la casella "escluso dal ciclo" nel form, non solo la categoria.
 //
-// MOONEY e IMPOSTA DI BOLLO erano nell'elenco storico ma non hanno un
-// corrispettivo canonico non ambiguo (Mooney processa qualsiasi bolletta
-// pagoPA - potrebbe essere Enel, Acqua o Rifiuti a seconda del caso; Imposta
-// di bollo non e' ne' una spesa reale ne' una delle 4 voci amministrative) -
-// rimossi dal suggerimento automatico finche' Jo non decide dove mapparli,
-// invece di indovinare e proporre una categoria sbagliata.
+// MOONEY era nell'elenco storico ma non ha un corrispettivo canonico non
+// ambiguo (processa qualsiasi bolletta pagoPA - potrebbe essere Enel, Acqua
+// o Rifiuti a seconda del caso) - resta fuori dal suggerimento automatico
+// finche' Jo non decide dove mapparlo, invece di indovinare e proporre una
+// categoria sbagliata. IMPOSTA DI BOLLO invece ora ha un match esatto
+// (categoria "Commissioni Bancarie e Bollo", aggiunta il 04/09/2026).
 const MERCHANT_RULES = [
+  { match: "IMPOSTA DI BOLLO", category: "Commissioni Bancarie e Bollo" },
   { match: "KLARNA", category: "Debito / Klarna (tracciato altrove)", excluded: true },
   { match: "CAPCUT", category: "Abbonamento (tracciato altrove)", excluded: true },
   { match: "PAYPAL *GOOGLE GOOGLE", category: "Abbonamento (tracciato altrove)", excluded: true },
