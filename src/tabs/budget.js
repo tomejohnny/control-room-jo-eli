@@ -1,5 +1,6 @@
 import { getState, loadAll } from "../lib/store.js";
 import { insertRow, updateRow, deleteRow } from "../lib/db.js";
+import { totalMonthlyFixedExpenses } from "../lib/finance.js";
 import { money, escapeHtml } from "../lib/format.js";
 import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
@@ -24,9 +25,7 @@ export function render() {
 
   if (!rows.length) tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Nessuna voce di budget.</td></tr>`;
 
-  let total = 0;
   rows.forEach(b => {
-    if (b.active !== false) total += Number(b.amount || 0);
     const color = badgeColor(b.subject);
     const rowClass = b.active === false ? "inactive-row" : "";
 
@@ -70,14 +69,18 @@ export function render() {
     mobile.appendChild(card);
   });
 
-  document.getElementById("budget-total-sum").textContent = money(total);
+  // Il totale e' l'equivalente mensile (una voce Bimestrale/Trimestrale/...
+  // pesa per la sua quota mensile, non per l'importo pieno che si vede nella
+  // riga) - stessa funzione usata da Risk & Burn, Treasury e le altre viste
+  // che sommano Fisso Certo a un totale mensile, vedi finance.js.
+  const fissoTotal = totalMonthlyFixedExpenses(rows);
+  document.getElementById("budget-total-sum").textContent = money(fissoTotal);
 
   tbody.querySelectorAll("[data-delete]").forEach(el => el.addEventListener("click", () => onDelete(el.dataset.delete)));
   tbody.querySelectorAll("[data-edit]").forEach(el => el.addEventListener("click", () => onEdit(el.dataset.edit)));
   mobile.querySelectorAll("[data-delete]").forEach(el => el.addEventListener("click", () => onDelete(el.dataset.delete)));
   mobile.querySelectorAll("[data-edit]").forEach(el => el.addEventListener("click", () => onEdit(el.dataset.edit)));
 
-  const fissoTotal = total;
   const variableTotal = renderBudgetTier("Variabile Stimato", "budget-variable-table-body", "budget-variable-mobile", "budget-variable-total-sum");
   const accantTotal = renderBudgetTier("Accantonamento Mensilizzato", "budget-accant-table-body", "budget-accant-mobile", "budget-accant-total-sum");
   document.getElementById("budget-grand-total-sum").innerHTML = `<strong>${money(fissoTotal + variableTotal + accantTotal)}</strong>`;

@@ -1,7 +1,7 @@
 import { getState } from "../lib/store.js";
 import {
   quarterlyTreasury, bankBalance, monthEndMargin, dscr, liquidityMonths,
-  totalMonthlyFixedExpenses, totalMonthlyIncome,
+  totalMonthlyFixedExpenses, totalMonthlyIncome, monthlyEquivalentAmount,
 } from "../lib/finance.js";
 import { money, escapeHtml, todayIso } from "../lib/format.js";
 
@@ -18,7 +18,7 @@ function budgetVsSpesoRows(fixedExpenses, monthMovements) {
   const budgetByCategory = new Map();
   fixedExpenses.filter(f => f.active !== false).forEach(f => {
     const cat = f.category || "Senza categoria";
-    budgetByCategory.set(cat, (budgetByCategory.get(cat) || 0) + Number(f.amount || 0));
+    budgetByCategory.set(cat, (budgetByCategory.get(cat) || 0) + monthlyEquivalentAmount(f.amount, f.frequency));
   });
   const actualByCategory = new Map();
   monthMovements

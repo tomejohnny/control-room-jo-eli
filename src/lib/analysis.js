@@ -20,6 +20,7 @@
 
 import { isSameMonth } from "./format.js";
 import { groupTransactionsByCycle } from "./cardtransactions.js";
+import { monthlyEquivalentAmount } from "./finance.js";
 
 const EXCLUDED_DEADLINE_CATEGORIES = new Set(["Carta di Credito", "Abbonamento"]);
 
@@ -57,7 +58,7 @@ export function monthlyBreakdown(state, ref = new Date()) {
 
   fixedExpenses
     .filter(f => f.active !== false && f.category !== "Investimenti")
-    .forEach(f => items.push({ category: displayCategory(f.category), amount: Number(f.amount || 0) }));
+    .forEach(f => items.push({ category: displayCategory(f.category), amount: monthlyEquivalentAmount(f.amount, f.frequency) }));
 
   deadlines
     .filter(d => isSameMonth(d.due_date, ref))

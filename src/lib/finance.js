@@ -26,8 +26,27 @@ export function monthEndMargin(cashMovements, deadlines, ref = new Date()) {
   return balance - pending;
 }
 
+// Le voci Fisso Certo mostrano l'importo reale della bolletta/rata cosi'
+// come arriva (es. EOLO 59,80€ Bimestrale), ma un totale MENSILE deve
+// contarle per il loro equivalente mensile, non per l'importo pieno - altrimenti
+// una voce bimestrale pesa il doppio del dovuto sul totale del mese (bug
+// segnalato da Jo il 04/09/2026 su EOLO: 59,80€ invece di 29,90€/mese).
+// Le frequenze non riconosciute (o "Mensile") restano invariate.
+const FREQUENCY_DIVISORS = {
+  Mensile: 1,
+  Bimestrale: 2,
+  Trimestrale: 3,
+  Semestrale: 6,
+  Annuale: 12,
+};
+
+export function monthlyEquivalentAmount(amount, frequency) {
+  const divisor = FREQUENCY_DIVISORS[frequency] || 1;
+  return Number(amount || 0) / divisor;
+}
+
 export function totalMonthlyFixedExpenses(fixedExpenses) {
-  return fixedExpenses.filter(f => f.active !== false).reduce((sum, f) => sum + Number(f.amount || 0), 0);
+  return fixedExpenses.filter(f => f.active !== false).reduce((sum, f) => sum + monthlyEquivalentAmount(f.amount, f.frequency), 0);
 }
 
 export function totalMonthlyIncome(recurringIncome) {
@@ -43,7 +62,7 @@ export function liquidityMonths(cashMovements, fixedExpenses) {
 export function dscr(recurringIncome, fixedExpenses) {
   const debtService = fixedExpenses
     .filter(f => f.active !== false && String(f.category || "").toLowerCase().includes("debito"))
-    .reduce((sum, f) => sum + Number(f.amount || 0), 0);
+    .reduce((sum, f) => sum + monthlyEquivalentAmount(f.amount, f.frequency), 0);
   if (debtService <= 0) return null;
   return totalMonthlyIncome(recurringIncome) / debtService;
 }
