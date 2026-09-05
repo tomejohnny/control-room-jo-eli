@@ -87,6 +87,15 @@ export function render() {
   document.getElementById("budget-grand-total-sum").innerHTML = `<strong>${money(fissoTotal + variableTotal + accantTotal)}</strong>`;
 }
 
+// Stesso formato usato riga per riga (vedi renderVariabileStimato) e per il
+// totale della sezione: valore assoluto, e la percentuale sullo stimato solo
+// se lo stimato non e' zero (altrimenti la percentuale non ha senso).
+function formatScostamento(scostamento, scostamentoPct) {
+  return scostamentoPct == null
+    ? money(scostamento)
+    : `${money(scostamento)} (${scostamento >= 0 ? "+" : ""}${scostamentoPct.toFixed(0)}%)`;
+}
+
 // Variabile Stimato: a differenza di Accantonamento Mensilizzato (sotto),
 // qui ha senso un vero confronto Stimato/Consuntivo - i movimenti carta gia'
 // categorizzati con la tassonomia canonica (categories.js) dicono quanto si
@@ -127,14 +136,14 @@ function renderVariabileStimato() {
   const computed = variabileStimatoConsuntivo(rows, getState().cardTransactions, latestPeriod || "");
 
   let total = 0;
+  let totalConsuntivo = 0;
   computed.forEach(b => {
     total += b.stimato;
+    totalConsuntivo += b.consuntivo;
     const label = (b.notes || "").replace(/^\[[^\]]+\]\s*/, "").split(" - ")[0] || b.category;
     const overBudget = b.scostamento > 0;
     const scostamentoClass = overBudget ? "text-red" : "text-green";
-    const scostamentoLabel = b.scostamentoPct == null
-      ? money(b.scostamento)
-      : `${money(b.scostamento)} (${b.scostamento >= 0 ? "+" : ""}${b.scostamentoPct.toFixed(0)}%)`;
+    const scostamentoLabel = formatScostamento(b.scostamento, b.scostamentoPct);
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -161,6 +170,30 @@ function renderVariabileStimato() {
   });
 
   document.getElementById("budget-variable-total-sum").textContent = money(total);
+
+  const totalScostamento = totalConsuntivo - total;
+  const totalScostamentoPct = total > 0 ? (totalScostamento / total) * 100 : null;
+  const totalOverBudget = totalScostamento > 0;
+  document.getElementById("budget-variable-total-consuntivo").textContent = money(totalConsuntivo);
+  const totalScostamentoEl = document.getElementById("budget-variable-total-scostamento");
+  totalScostamentoEl.textContent = formatScostamento(totalScostamento, totalScostamentoPct);
+  totalScostamentoEl.className = "value amount " + (totalOverBudget ? "text-red" : "text-green");
+
+  // Stessa etichetta "parziale" della nota in cima alla sezione, ripetuta
+  // anche qui accanto ai totali per coerenza (richiesto da Jo il 05/09/2026):
+  // il totale consuntivo di un mese in corso e' parziale esattamente quanto
+  // lo sono le singole righe che lo compongono.
+  const totalNoteEl = document.getElementById("budget-variable-total-note");
+  if (totalNoteEl) {
+    if (latestPeriod === currentMonth) {
+      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      totalNoteEl.textContent = `Consuntivo parziale - mese in corso (giorno ${today.getDate()} di ${daysInMonth})`;
+      totalNoteEl.style.display = "";
+    } else {
+      totalNoteEl.style.display = "none";
+    }
+  }
+
   return total;
 }
 
