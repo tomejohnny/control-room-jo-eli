@@ -42,3 +42,24 @@ export function groupTransactionsByCycle(transactions, person, ref = new Date(),
 
   return groups;
 }
+
+// Usato/residuo di plafond per "person" nel ciclo attualmente aperto -
+// riusa groupTransactionsByCycle (stessa fonte dati, stesso filtro
+// excluded_from_cycle) invece di ricalcolare per conto proprio, cosi' il
+// pannello "Plafond Carta di Credito" e le card "Ciclo aperto" non possono
+// mai disallinearsi. Prima leggeva da deadlines (categoria "Carta di
+// Credito"), uno snapshot scritto a mano che restava indietro rispetto ai
+// movimenti carta reali appena inseriti - bug segnalato da Jo il
+// 05/09/2026 (scarto esatto: la somma dei movimenti piu' recenti mancanti
+// dallo snapshot).
+export function cardPlafondStatus(cardTransactions, person, plafond, ref = new Date()) {
+  const [openCycle] = groupTransactionsByCycle(cardTransactions, person, ref, 1);
+  return {
+    used: openCycle.total,
+    remaining: plafond - openCycle.total,
+    plafond,
+    cycleStart: openCycle.cycleStart,
+    cycleEnd: openCycle.cycleEnd,
+    settlementDate: openCycle.settlementDate,
+  };
+}

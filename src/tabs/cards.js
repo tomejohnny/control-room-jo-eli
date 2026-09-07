@@ -5,8 +5,8 @@ import { openModal, closeModal } from "../lib/modal.js";
 import { toast, toastError } from "../lib/ui.js";
 import { notifyDataChanged } from "../lib/bus.js";
 import { confirmDialog } from "../lib/confirm.js";
-import { groupTransactionsByCycle } from "../lib/cardtransactions.js";
-import { cardPlafondStatus, plafondColor, plafondTileClass } from "../lib/creditcard.js";
+import { groupTransactionsByCycle, cardPlafondStatus } from "../lib/cardtransactions.js";
+import { plafondColor, plafondTileClass } from "../lib/creditcard.js";
 import { guessCategory } from "../lib/cardcategories.js";
 import { CARD_CATEGORIES } from "../lib/categories.js";
 import { initCombobox } from "../lib/combobox.js";
@@ -109,10 +109,10 @@ function groupHtml(g) {
     </div>`;
 }
 
-function plafondBarHtml(deadlines) {
+function plafondBarHtml(cardTransactions) {
   const statuses = CARDHOLDERS.map(person => ({
     person,
-    ...cardPlafondStatus(deadlines, person, CARD_PLAFOND),
+    ...cardPlafondStatus(cardTransactions, person, CARD_PLAFOND),
   }));
   const cycleLabel = statuses.length
     ? `${statuses[0].cycleStart.toLocaleDateString("it-IT", { day: "numeric", month: "short" })} - ${statuses[0].cycleEnd.toLocaleDateString("it-IT", { day: "numeric", month: "short" })}`
@@ -131,7 +131,7 @@ function plafondBarHtml(deadlines) {
 }
 
 export function render() {
-  const { cardTransactions, deadlines } = getState();
+  const { cardTransactions } = getState();
   const container = document.getElementById("cards-container");
 
   const groupsHtml = CARDHOLDERS.map(person => {
@@ -141,7 +141,7 @@ export function render() {
       ${groups.map(groupHtml).join("")}`;
   }).join("");
 
-  container.innerHTML = plafondBarHtml(deadlines) + groupsHtml;
+  container.innerHTML = plafondBarHtml(cardTransactions) + groupsHtml;
 
   container.querySelectorAll("[data-delete]").forEach(el => el.addEventListener("click", () => onDelete(el.dataset.delete)));
   container.querySelectorAll("[data-edit]").forEach(el => el.addEventListener("click", () => onEdit(el.dataset.edit)));

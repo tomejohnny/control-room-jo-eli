@@ -21,25 +21,6 @@ export function cardCycle(date = new Date()) {
   return { cycleStart, cycleEnd, settlementDate };
 }
 
-function inCycle(dateStr, cycleStart, cycleEnd) {
-  if (!dateStr) return false;
-  const d = new Date(dateStr);
-  return d >= cycleStart && d <= cycleEnd;
-}
-
-// Quanto del plafond di "subject" (Jo / Elisa) e' gia' stato speso nel ciclo
-// attualmente aperto (quello che contiene "ref", di norma oggi), e quanto
-// resta. Legge le scadenze category="Carta di Credito" di quella persona con
-// purchase_date valorizzata - le uniche che consumano plafond.
-export function cardPlafondStatus(deadlines, subject, plafond, ref = new Date()) {
-  const { cycleStart, cycleEnd, settlementDate } = cardCycle(ref);
-  const used = deadlines
-    .filter(d => d.category === "Carta di Credito" && d.subject === subject)
-    .filter(d => inCycle(d.purchase_date, cycleStart, cycleEnd))
-    .reduce((sum, d) => sum + Number(d.amount || 0), 0);
-  return { used, remaining: plafond - used, plafond, cycleStart, cycleEnd, settlementDate };
-}
-
 // Soglie colore per il residuo di plafond disponibile (usate nel tab Carte,
 // spostate qui dal tab Risk & Burn il 01/09/2026 assieme al blocco
 // "Disponibile" - le carte si controllano nella sezione dedicata, non piu'
