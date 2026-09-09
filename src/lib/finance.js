@@ -26,6 +26,38 @@ export function monthEndMargin(cashMovements, deadlines, ref = new Date()) {
   return balance - pending;
 }
 
+// Fido di cassa: linea di credito storica sul conto corrente, senza
+// scadenza (dato reale della banca, non ricavabile da Supabase - vedi
+// richiesta di Jo del 09/09/2026). Costante applicativa, non una colonna:
+// se l'importo cambiasse in futuro va aggiornato solo qui.
+//
+// bankBalance()/monthEndMargin() sopra restituiscono gia' il saldo
+// DISPONIBILE (include il fido, cosi' come lo mostra la banca) - le tre
+// funzioni sotto derivano da quello il saldo CONTABILE (quanto c'e' davvero
+// sul conto) e quanto fido si sta usando, senza toccare nessun dato salvato.
+export const FIDO_CASSA = 4000;
+
+export function saldoContabile(saldoDisponibile) {
+  return saldoDisponibile - FIDO_CASSA;
+}
+
+// Quanto fido e' in uso ora: 0 se il saldo disponibile copre o supera il
+// fido pieno (fido non toccato), fino a FIDO_CASSA quando il saldo
+// disponibile arriva a 0 (fido tutto utilizzato, saldo contabile a
+// -FIDO_CASSA). Ha senso solo per saldo disponibile >= 0: sotto zero si e'
+// gia' in sforamento, vedi fidoSforamento().
+export function fidoUtilizzato(saldoDisponibile) {
+  return Math.max(0, FIDO_CASSA - saldoDisponibile);
+}
+
+// Sforamento: si verifica SOLO quando il saldo disponibile scende sotto
+// zero - a quel punto l'intero fido e' gia' superato, non ne resta una
+// parte (mai la dicitura "fido residuo" in questo caso). null se non c'e'
+// sforamento.
+export function fidoSforamento(saldoDisponibile) {
+  return saldoDisponibile < 0 ? Math.abs(saldoDisponibile) : null;
+}
+
 // Le voci Fisso Certo mostrano l'importo reale della bolletta/rata cosi'
 // come arriva (es. EOLO 59,80€ Bimestrale), ma un totale MENSILE deve
 // contarle per il loro equivalente mensile, non per l'importo pieno - altrimenti

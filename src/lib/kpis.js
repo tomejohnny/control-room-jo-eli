@@ -1,5 +1,8 @@
 import { getState } from "./store.js";
-import { bankBalance, monthEndMargin, dscr, liquidityMonths, netWorth, savingsRate } from "./finance.js";
+import {
+  bankBalance, monthEndMargin, dscr, liquidityMonths, netWorth, savingsRate,
+  FIDO_CASSA, saldoContabile, fidoUtilizzato, fidoSforamento,
+} from "./finance.js";
 import { money } from "./format.js";
 
 export function refreshKpis() {
@@ -7,6 +10,7 @@ export function refreshKpis() {
 
   const balance = bankBalance(cashMovements);
   document.getElementById("kpi-balance").textContent = money(balance);
+  document.getElementById("kpi-saldo-contabile").textContent = money(saldoContabile(balance));
 
   const margin = monthEndMargin(cashMovements, deadlines);
   const marginEl = document.getElementById("kpi-margin");
@@ -14,6 +18,28 @@ export function refreshKpis() {
   marginEl.textContent = money(margin);
   marginCard.className = "kpi-card " + (margin >= 0 ? "green" : "red");
   marginEl.style.color = margin >= 0 ? "var(--accent-green)" : "var(--accent-red)";
+
+  // Stessa logica fido di Saldo Cassa, applicata al saldo disponibile
+  // PROIETTATO di fine mese: sotto zero l'intero fido e' gia' superato
+  // ("sforamento", mai "fido residuo" - un saldo negativo non lascia fido
+  // residuo). Tra 0 e FIDO_CASSA il margine e' comunque >= 0 (nessun
+  // allarme) ma una parte del fido sarebbe in uso: nota informativa, non
+  // un avviso. Sopra FIDO_CASSA il fido resta del tutto inutilizzato,
+  // nessuna nota.
+  const marginFidoEl = document.getElementById("kpi-margin-fido-note");
+  const marginSforamento = fidoSforamento(margin);
+  if (marginSforamento != null) {
+    // .badge di default e' pensata per etichette brevi (white-space:nowrap) -
+    // questo testo e' una frase intera, deve poter andare a capo dentro la
+    // card invece di uscire dal bordo.
+    marginFidoEl.innerHTML = `<span class="badge" style="background:var(--accent-red);white-space:normal;line-height:1.4">⚠️ Sforamento fido previsto: ${money(marginSforamento)}, oltre il fido di ${money(FIDO_CASSA)} disponibile</span>`;
+    marginFidoEl.style.display = "";
+  } else if (saldoContabile(margin) < 0) {
+    marginFidoEl.textContent = `Fido in uso: ${money(fidoUtilizzato(margin))} di ${money(FIDO_CASSA)}`;
+    marginFidoEl.style.display = "";
+  } else {
+    marginFidoEl.style.display = "none";
+  }
 
   const dscrValue = dscr(recurringIncome, fixedExpenses);
   const dscrEl = document.getElementById("kpi-dscr");

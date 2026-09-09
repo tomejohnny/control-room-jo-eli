@@ -70,12 +70,15 @@
                     <div class="kpi-card">
                         <div class="kpi-title">Saldo Cassa</div>
                         <div class="kpi-value" id="kpi-balance">€ 0,00</div>
-                        <div class="kpi-sub">Somma movimenti registrati</div>
+                        <div class="kpi-sub">Somma movimenti registrati (saldo disponibile)</div>
+                        <div class="kpi-sub" style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--border-color)">Fido di Cassa: € 4.000,00 (storico, senza scadenza)</div>
+                        <div class="kpi-sub">Saldo Contabile: <strong id="kpi-saldo-contabile">€ 0,00</strong></div>
                     </div>
                     <div class="kpi-card" id="kpi-card-margin">
                         <div class="kpi-title">Margine Fine Mese</div>
                         <div class="kpi-value" id="kpi-margin">€ 0,00</div>
                         <div class="kpi-sub">Saldo meno scadenze del mese</div>
+                        <div class="kpi-sub" id="kpi-margin-fido-note" style="display:none;margin-top:6px"></div>
                     </div>
                     <div class="kpi-card amber">
                         <div class="kpi-title">DSCR Ratio</div>
