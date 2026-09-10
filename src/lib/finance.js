@@ -74,8 +74,15 @@ export function unpaidFixedExpensesThisMonth(fixedExpenses, cashMovements, ref =
 // mostrare la nota in UI.
 export function monthEndMarginDetail(cashMovements, deadlines, fixedExpenses, ref = new Date()) {
   const balance = bankBalance(cashMovements);
+  // gia_in_liquidazione_carta = true (es. rate Klarna): il due_date riflette
+  // la scadenza verso il fornitore, non la vera data di uscita dei soldi dal
+  // conto - quella segue il ciclo carta (18 del mese), gia' rappresentata
+  // dalle scadenze categoria "Carta di Credito" (NON escluse: quelle restano
+  // la vera uscita di cassa del ciclo, confermato con Jo il 10/09/2026 -
+  // escluderle anche loro toglierebbe dal margine un'uscita reale e certa
+  // non tracciata altrove, lo stesso tipo di bug appena corretto).
   const pendingDeadlines = deadlines
-    .filter(d => isDeadlinePending(d) && sameMonth(d.due_date, ref))
+    .filter(d => isDeadlinePending(d) && sameMonth(d.due_date, ref) && !d.gia_in_liquidazione_carta)
     .reduce((sum, d) => sum + Number(d.amount || 0), 0);
   const unpaidFixedExpenses = unpaidFixedExpensesThisMonth(fixedExpenses, cashMovements, ref);
   const pendingFixedExpenses = unpaidFixedExpenses.reduce((sum, f) => sum + Number(f.amount || 0), 0);
