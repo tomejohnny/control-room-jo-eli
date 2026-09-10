@@ -18,12 +18,77 @@ export function bankBalance(cashMovements) {
     }, 0);
 }
 
-export function monthEndMargin(cashMovements, deadlines, ref = new Date()) {
+// Parole "significative" di una descrizione (accenti rimossi, parole di 2
+// caratteri o meno scartate perche' troppo generiche/rumorose per un
+// match). Usata solo per il confronto in hasLoggedMovement() sotto.
+function normalizeWords(text) {
+  return String(text || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .split(/[^a-z0-9]+/)
+    .filter(w => w.length > 2);
+}
+
+// Vero se OGNI parola significativa della descrizione della spesa fissa
+// compare in almeno un movimento del mese - match "ragionevole" (non
+// millimetrico) per evitare di contare due volte una spesa fissa gia'
+// registrata a mano come cash_movement, anche se descritta con parole
+// diverse attorno (es. un bonifico riassuntivo che nomina piu' cose).
+// Richiedere TUTTE le parole (non una sola) evita falsi positivi tra due
+// spese fisse che condividono una singola parola generica.
+function hasLoggedMovement(description, monthMovements) {
+  const words = normalizeWords(description);
+  if (!words.length) return false;
+  return monthMovements.some(m => {
+    const text = String(m.description || "").toLowerCase();
+    return words.every(w => text.includes(w));
+  });
+}
+
+// Spese Fisso Certo che usciranno davvero dal conto questo mese e non sono
+// ancora ne' pagate con carta (gia' nella liquidazione ciclo carta, vedi
+// deadlines categoria "Carta di Credito" - contarle anche qui sarebbe doppio
+// conteggio, come CapCut corretto il 09/09/2026) ne' gia' registrate a mano
+// come cash_movement del mese.
+export function unpaidFixedExpensesThisMonth(fixedExpenses, cashMovements, ref = new Date()) {
+  const monthMovements = cashMovements.filter(m => sameMonth(m.movement_date, ref));
+  return fixedExpenses.filter(f =>
+    f.active !== false &&
+    !f.paid_by_card &&
+    !hasLoggedMovement(f.description, monthMovements)
+  );
+}
+
+// Margine Fine Mese = cassa reale che uscira' dal conto entro fine mese -
+// include le spese Fisso Certo residue, non solo le scadenze (bug
+// segnalato da Jo il 10/09/2026: senza le spese fisse il margine risultava
+// sistematicamente troppo ottimista, in un caso reale di oltre 3.283 euro,
+// nascondendo rischi di sforamento veri). Deliberatamente NON mensilizzato
+// per frequenza (a differenza di monthlyEquivalentAmount/
+// totalMonthlyFixedExpenses sotto, corrette per il Master Budget/
+// pianificazione ma non per la cassa reale di questo mese): una voce
+// Bimestrale/Trimestrale/... non ha un campo che dica in quale mese cade
+// la fattura, quindi si usa l'importo pieno come stima prudenziale in ogni
+// mese - meglio sovrastimare l'uscita che rischiare di ometterla nel mese
+// sbagliato. hasProvisionalEstimate segnala quando questo e' il caso, per
+// mostrare la nota in UI.
+export function monthEndMarginDetail(cashMovements, deadlines, fixedExpenses, ref = new Date()) {
   const balance = bankBalance(cashMovements);
-  const pending = deadlines
+  const pendingDeadlines = deadlines
     .filter(d => isDeadlinePending(d) && sameMonth(d.due_date, ref))
     .reduce((sum, d) => sum + Number(d.amount || 0), 0);
-  return balance - pending;
+  const unpaidFixedExpenses = unpaidFixedExpensesThisMonth(fixedExpenses, cashMovements, ref);
+  const pendingFixedExpenses = unpaidFixedExpenses.reduce((sum, f) => sum + Number(f.amount || 0), 0);
+  const hasProvisionalEstimate = unpaidFixedExpenses.some(f => f.frequency && f.frequency !== "Mensile");
+  return {
+    margin: balance - pendingDeadlines - pendingFixedExpenses,
+    pendingFixedExpenses,
+    hasProvisionalEstimate,
+  };
+}
+
+export function monthEndMargin(cashMovements, deadlines, fixedExpenses, ref = new Date()) {
+  return monthEndMarginDetail(cashMovements, deadlines, fixedExpenses, ref).margin;
 }
 
 // Fido di cassa: linea di credito storica sul conto corrente, senza

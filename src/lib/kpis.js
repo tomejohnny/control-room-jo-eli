@@ -1,6 +1,6 @@
 import { getState } from "./store.js";
 import {
-  bankBalance, monthEndMargin, dscr, liquidityMonths, netWorth, savingsRate,
+  bankBalance, monthEndMarginDetail, dscr, liquidityMonths, netWorth, savingsRate,
   FIDO_CASSA, saldoContabile, fidoUtilizzato, fidoSforamento,
 } from "./finance.js";
 import { money } from "./format.js";
@@ -12,12 +12,20 @@ export function refreshKpis() {
   document.getElementById("kpi-balance").textContent = money(balance);
   document.getElementById("kpi-saldo-contabile").textContent = money(saldoContabile(balance));
 
-  const margin = monthEndMargin(cashMovements, deadlines);
+  const { margin, hasProvisionalEstimate } = monthEndMarginDetail(cashMovements, deadlines, fixedExpenses);
   const marginEl = document.getElementById("kpi-margin");
   const marginCard = document.getElementById("kpi-card-margin");
   marginEl.textContent = money(margin);
   marginCard.className = "kpi-card " + (margin >= 0 ? "green" : "red");
   marginEl.style.color = margin >= 0 ? "var(--accent-green)" : "var(--accent-red)";
+
+  // Almeno una spesa fissa non mensile (es. bollette Bimestrali) e' entrata
+  // nel calcolo come stima prudenziale - vedi monthEndMarginDetail() in
+  // finance.js: senza un campo che dica in quale mese cade davvero la
+  // fattura, l'importo pieno viene incluso ogni mese per non rischiare di
+  // ometterlo, ma va segnalato come stima, non spacciato per certo.
+  const estimateNoteEl = document.getElementById("kpi-margin-estimate-note");
+  estimateNoteEl.style.display = hasProvisionalEstimate ? "" : "none";
 
   // Stessa logica fido di Saldo Cassa, applicata al saldo disponibile
   // PROIETTATO di fine mese: sotto zero l'intero fido e' gia' superato

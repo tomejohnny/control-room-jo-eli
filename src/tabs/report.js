@@ -68,7 +68,7 @@ export function render() {
   const [quarter] = quarterlyTreasury(recurringIncome, fixedExpenses, deadlines, 1, refDate);
 
   const balance = bankBalance(cashMovements);
-  const margin = monthEndMargin(cashMovements, deadlines, refDate);
+  const margin = monthEndMargin(cashMovements, deadlines, fixedExpenses, refDate);
   const dscrValue = dscr(recurringIncome, fixedExpenses);
   const months = liquidityMonths(cashMovements, fixedExpenses);
   const budgetTotal = totalMonthlyFixedExpenses(fixedExpenses);
